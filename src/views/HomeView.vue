@@ -1,10 +1,13 @@
 <script setup lang="ts">
+import KanBoard from '../components/KanBoard.vue';
+import ActionButtonsToolbar from '../components/ActionButtonsToolbar.vue';
 </script>
 
 <template>
   <main>
-    <h1>
-      Welcome
-    </h1>
+    <KanBoard></KanBoard>
+    <ActionButtonsToolbar></ActionButtonsToolbar>
   </main>
 </template>
+
+<style scoped></style>
