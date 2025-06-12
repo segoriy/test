@@ -4,10 +4,20 @@ import ActionButtonsToolbar from '../components/ActionButtonsToolbar.vue';
 </script>
 
 <template>
-  <main>
+  <main class="wrapper">
     <KanBoard></KanBoard>
     <ActionButtonsToolbar></ActionButtonsToolbar>
   </main>
 </template>
 
-<style scoped></style>
+<style scoped>
+.wrapper {
+  padding: var(--main-padding);
+  padding-bottom: calc(var(--main-padding) + 10px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  row-gap: var(--kanboard-column-gap);
+  height: 100vh;
+}
+</style>
