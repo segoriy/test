@@ -8,18 +8,18 @@
   --k-c-black-mute: #282828;
 
   --k-c-grey: #eceff2;
-  --k-c-grey-soft: #e0e3e6;
-  --k-c-grey-mute: #ced9e3;
-
-  --k-c-indigo: #2c3e50;
+  --k-c-grey-1: #e0e3e6;
+  --k-c-grey-2: #ced9e3;
+  --k-c-grey-3: #afb9c3;
 
   --k-c-divider-light-1: #e0e3e6;
   --k-c-divider-light-2: rgba(60, 60, 60, 0.12);
   --k-c-divider-dark-1: rgba(84, 84, 84, 0.65);
   --k-c-divider-dark-2: rgba(84, 84, 84, 0.48);
 
-  --k-c-text-light-1: var(--k-c-indigo);
-  --k-c-text-light-2: rgba(60, 60, 60, 0.66);
+  --k-c-text-light-1: var(--k-c-black);
+  --k-c-text-light-2: #5e6061;
+  --k-c-text-light-3: #b3b3b3;
   --k-c-text-dark-1: var(--k-c-white);
   --k-c-text-dark-2: rgba(235, 235, 235, 0.64);
 }
@@ -34,8 +34,9 @@
   --shadow-24: 0 24px 38px rgba(0, 0, 0, 0.25), 0 24px 38px rgba(0, 0, 0, 0.22);
 
   --color-background: var(--k-c-white);
-  --color-background-soft: var(--k-c-white-soft);
-  --color-background-mute: var(--k-c-white-mute);
+  --color-background-1: var(--k-c-grey-1);
+  --color-background-2: var(--k-c-grey-2);
+  --color-background-3: var(--k-c-grey-3);
 
   --color-border: var(--k-c-divider-light-1);
   --color-border-hover: var(--k-c-divider-light-1);
@@ -43,8 +44,10 @@
 
   --color-heading: var(--k-c-text-light-1);
   --color-text: var(--k-c-text-light-1);
+  --color-text-secondary: var(--k-c-text-light-3);
+  --color-text-counter: var(--k-c-text-light-2);
 
-  --color-background-column: var(--k-c-grey-soft);
+  --color-background-column: var(--k-c-grey);
 
   --kanboard-column-gap: 24px;
   --main-padding: 24px;
@@ -57,13 +60,15 @@
   );
 
   --stack-gap: 8px;
+
+  --base-font: 600 13px/13px Inter, sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --color-background: var(--k-c-black);
-    --color-background-soft: var(--k-c-black-soft);
-    --color-background-mute: var(--k-c-black-mute);
+    --color-background-1: var(--k-c-black-soft);
+    --color-background-2: var(--k-c-black-mute);
 
     --color-border: var(--k-c-divider-dark-2);
     --color-border-hover: var(--k-c-divider-dark-1);
@@ -78,7 +83,6 @@
 *::after {
   box-sizing: border-box;
   margin: 0;
-  font-weight: normal;
 }
 
 body {
@@ -89,6 +93,7 @@ body {
     color 0.5s,
     background-color 0.5s;
   line-height: 1.6;
+  font-weight: 600;
   font-family:
     Inter,
     -apple-system,
@@ -102,7 +107,7 @@ body {
     'Droid Sans',
     'Helvetica Neue',
     sans-serif;
-  font-size: 15px;
+  font-size: 13px;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

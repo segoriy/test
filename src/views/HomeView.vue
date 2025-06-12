@@ -13,7 +13,7 @@ import ActionButtonsToolbar from '../components/ActionButtonsToolbar.vue';
 <style scoped>
 .wrapper {
   padding: var(--main-padding);
-  padding-bottom: calc(var(--main-padding) + 10px);
+  padding-bottom: calc(var(--main-padding) + 20px);
   display: flex;
   flex-direction: column;
   align-items: center;
