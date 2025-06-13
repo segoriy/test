@@ -48,7 +48,8 @@ function handleDeleteExistingCard(id: Card['id']) {
       </ButtonStack>
     </div>
     <div class='body'>
-      <KanCard v-for="card in cards" :key="card.id" @delete-card="handleDeleteExistingCard(card.id)"> {{ card.title }}
+      <KanCard v-for="card in cards" :key="card.id" @delete-card="handleDeleteExistingCard(card.id)"
+        v-model:title="card.title" v-model:content="card.content"> {{ card.title }}
       </KanCard>
       <div class="new-card-button">
         <NewCardButton @new-click="handleNewCardClick" />
