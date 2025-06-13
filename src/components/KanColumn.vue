@@ -16,7 +16,7 @@ const emit = defineEmits<{
   (e: 'clearAllCards', id: Column['id']): void
   (e: 'disableEditing', id: Column['id']): void
   (e: 'deleteColumn', id: Column['id']): void
-  (e: 'updateColumnTitle', id: Column['id'], title: string): void
+  (e: 'cardUpdated', id: Column['id'], cardId: Card['id']): void
 }>();
 
 const { cards, id: columnId, canEdit } = defineProps<{
@@ -32,7 +32,7 @@ const titleElement = ref<HTMLElement>();
 const cardsCounter = computed(() => cards.length || '');
 
 function handleTitleDoubleClick() {
-  if (isEditingTitle.value) return;
+  if (isEditingTitle.value || !canEdit) return;
 
   isEditingTitle.value = true;
   nextTick(() => {
@@ -84,14 +84,19 @@ function handleDeleteColumnClick() {
 function handleClearAllClick() {
   emit('clearAllCards', columnId)
 }
+
+function handleCardUpdated(id: Card['id']) {
+  emit('cardUpdated', columnId, id);
+}
 </script>
 
 <template>
   <div class="column">
     <div class="header">
       <div class="title">
-        <div ref="titleElement" class="title-content" :contenteditable="isEditingTitle"
-          @dblclick="handleTitleDoubleClick" @blur="saveTitle" @keydown="handleKeyDown">
+        <div ref="titleElement" :class="{ 'title-content': true, 'disabled': !canEdit }"
+          :contenteditable="isEditingTitle" @dblclick="handleTitleDoubleClick" @blur="saveTitle"
+          @keydown="handleKeyDown">
           {{ title }}
 
         </div>
@@ -100,12 +105,13 @@ function handleClearAllClick() {
       </div>
       <ButtonStack>
         <BaseButton @click="handleDisableEditingClick"> {{ canEdit ? 'Disable' : 'Enable' }} Editing</BaseButton>
-        <BaseButton @click="handleDeleteColumnClick">Delete Column</BaseButton>
+        <BaseButton @click="handleDeleteColumnClick" :disabled="!canEdit">Delete Column</BaseButton>
       </ButtonStack>
     </div>
     <div class='body'>
       <KanCard v-for="card in cards" :key="card.id" @delete-card="handleDeleteExistingCard(card.id)"
-        v-model:title="card.title" v-model:content="card.content" :can-edit="canEdit" />
+        v-model:title="card.title" v-model:content="card.content" :can-edit="canEdit"
+        @updated="handleCardUpdated(card.id)" />
       <div v-if="canEdit" class="new-card-button">
         <NewCardButton @new-click="handleNewCardClick" />
       </div>
@@ -153,6 +159,10 @@ function handleClearAllClick() {
   color: var(--color-text-secondary);
   text-transform: uppercase;
   cursor: pointer;
+}
+
+.title-content.disabled {
+  cursor: auto;
 }
 
 .title-content[contenteditable="true"] {

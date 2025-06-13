@@ -15,6 +15,7 @@ button {
   border: 2px solid var(--color-border);
   border-radius: 50px;
   font: var(--base-font);
+  cursor: pointer;
 }
 
 button:active {

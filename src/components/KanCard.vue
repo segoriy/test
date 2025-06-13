@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, nextTick } from 'vue';
+import { ref, watch, nextTick, computed, onMounted } from 'vue';
 import ButtonStack from './ButtonStack.vue';
 import BaseButton from './BaseButton.vue';
 import IconDrag from './icons/IconDrag.vue';
@@ -10,12 +10,15 @@ const { focusEndOfElement } = useContentEditable();
 const titleModel = defineModel<string>('title');
 const contentModel = defineModel<string>('content');
 
-const { canEdit = true } = defineProps<{
+const { canEdit = true, isNew = true } = defineProps<{
   canEdit?: boolean
+  isNew?: boolean
 }>();
+
 
 const emit = defineEmits<{
   (e: 'delete-card'): void,
+  (e: 'updated'): void,
 }>()
 
 const isButtonsVisible = ref(false);
@@ -27,8 +30,19 @@ const titleElement = ref<HTMLElement>();
 const contentElement = ref<HTMLElement>();
 const lastClickTarget = ref<HTMLElement | null>(null);
 
-const originalTitle = ref(titleModel.value || '');
-const originalContent = ref(contentModel.value || '');
+const originalTitle = computed(() => titleModel.value || '');
+const originalContent = computed(() => contentModel.value || '');
+
+watch(() => canEdit, (newVal, old) => {
+  if (newVal === false) {
+    cancelEditing();
+  }
+});
+
+onMounted(() => {
+  if (!isNew || !canEdit || isEditing.value) return;
+  startEditing();
+});
 
 function handleDoubleClick(event: MouseEvent) {
   if (!canEdit || isEditing.value) return;
@@ -38,11 +52,9 @@ function handleDoubleClick(event: MouseEvent) {
 }
 
 function startEditing() {
+  if (!canEdit) return;
   isEditing.value = true;
   isButtonsVisible.value = true;
-
-  originalTitle.value = titleModel.value || '';
-  originalContent.value = contentModel.value || '';
 
   checkChanges();
 
@@ -70,6 +82,7 @@ function saveChanges() {
   contentModel.value = contentElement.value.innerText || '';
 
   cancelEditing();
+  emit('updated');
 }
 
 function cancelEditing() {
@@ -90,10 +103,14 @@ function checkChanges() {
 
 function handleKeyDown(e: KeyboardEvent) {
   if (e.key === 'Escape') {
+    if (isNew) {
+      emit('delete-card');
+      return;
+    }
     cancelEditing();
     e.preventDefault();
     e.stopPropagation();
-  } else if (e.key === 'Enter' && e.shiftKey && e.target === contentElement.value) {
+  } else if (e.key === 'Enter' && e.target === contentElement.value) {
     saveChanges();
     e.preventDefault();
   }
@@ -117,8 +134,7 @@ function blockEvent(event: Event) {
     card: true,
     'card-disabled': !canEdit,
     'editing-mode': isEditing,
-  }" @mousedown="blockEvent" @keydown="handleKeyDown" @contextmenu.prevent.stop="handleContext"
-    @dblclick="handleDoubleClick">
+  }" @contextmenu.prevent.stop="handleContext" @keydown="handleKeyDown" @dblclick="handleDoubleClick">
     <div :class="{
       title: true,
       'is-draggable': !isDraggable,
@@ -136,7 +152,7 @@ function blockEvent(event: Event) {
 
     <template v-if="isButtonsVisible">
       <ButtonStack>
-        <BaseButton @click="saveChanges" :disabled="!hasChanges">
+        <BaseButton @click="saveChanges" :disabled="!hasChanges && !isNew">
           Save
         </BaseButton>
         <BaseButton @click="cancelEditing">
@@ -162,7 +178,7 @@ function blockEvent(event: Event) {
 
 .card.card-disabled {
   opacity: 0.6;
-  cursor: not-allowed;
+  cursor: auto;
 }
 
 .title {

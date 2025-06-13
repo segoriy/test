@@ -24,13 +24,17 @@ function handleDisableEditingColumn(id: Column['id']) {
   kanBoard.toggleEditing(id);
 }
 
+function handleCardUpdated(id: Column['id'], cardId: Card['id']) {
+  kanBoard.handleCardUpdated(id, cardId);
+}
+
 </script>
 <template>
   <div class="kanboard">
     <KanColumn v-for="column in kanBoard.columns" :key="column.id" :id="column.id" :cards="column.cards"
       :can-edit="column.canEdit" v-model:title="column.title" @add-new-card="handleAddNewCard"
       @delete-card="handleDeleteCard" @delete-column="handleDeleteColumn" @clear-all-cards="handleClearAllCards"
-      @disable-editing="handleDisableEditingColumn" class="column">
+      @disable-editing="handleDisableEditingColumn" @card-updated="handleCardUpdated" class="column">
     </KanColumn>
   </div>
 </template>

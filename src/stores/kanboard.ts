@@ -14,6 +14,7 @@ type Card = {
   content: string;
   canEdit: boolean;
   id: number;
+  isNew: boolean;
 }
 
 const genId = () => Date.now() + Math.random();
@@ -67,6 +68,10 @@ export const useKanBoardStore = defineStore('kanBoard', () => {
     return columns.value.find(item => item.id === id);
   });
 
+  const getCardById = computed(() => (column: Column, cardId: Card['id']) => {
+    return column.cards.find(item => item.id === cardId);
+  });
+
   const canEditSame = computed(() => {
     if (!columns.value.length) return false;
     return columns.value.every((el) => el.canEdit == columns.value[0].canEdit);
@@ -99,8 +104,9 @@ export const useKanBoardStore = defineStore('kanBoard', () => {
     column.cards.push({
       title: `test title ${genId()}`,
       content: 'Add content...',
-      canEdit: true,
+      canEdit: column.canEdit,
       id: genId(),
+      isNew: true,
     })
   }
 
@@ -125,6 +131,7 @@ export const useKanBoardStore = defineStore('kanBoard', () => {
     if (!column) return;
 
     column.canEdit = !column.canEdit;
+    column.cards.forEach((card) => card.canEdit = column.canEdit);
   }
 
   function toggleEditingAll() {
@@ -133,6 +140,8 @@ export const useKanBoardStore = defineStore('kanBoard', () => {
     } else {
       columns.value.forEach((el) => el.canEdit = !el.canEdit);
     }
+    columns.value.forEach((col) => col.cards.forEach((card) => card.canEdit = col.canEdit));
+
   }
 
   function shuffleColumns() {
@@ -152,7 +161,18 @@ export const useKanBoardStore = defineStore('kanBoard', () => {
     }
   }
 
-  return { columns, shuffleColumns, addColumn, shuffleCards, toggleEditing, deleteColumn, addNewCard, deleteCard, clearAllCards, toggleEditingAll, canEditAll }
+  function handleCardUpdated(id: Column['id'], cardId: Card['id']) {
+    const column = getColumnById.value(id);
+
+    if (!column) return;
+
+    column.updated = Date.now();
+    const card = getCardById.value(column, cardId);
+    if (!card || !card.isNew) return;
+    card.isNew = false;
+  }
+
+  return { columns, shuffleColumns, addColumn, shuffleCards, toggleEditing, deleteColumn, addNewCard, deleteCard, clearAllCards, toggleEditingAll, canEditAll, handleCardUpdated }
 });
 
 export type { Column, Card };
