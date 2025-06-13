@@ -118,6 +118,7 @@ function handleKeyDown(e: KeyboardEvent) {
 
 function handleContext(event: Event) {
   if (blockEvent(event)) return;
+  emit('updated');
   emit('delete-card');
 }
 

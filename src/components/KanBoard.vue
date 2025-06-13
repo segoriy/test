@@ -32,7 +32,7 @@ function handleCardUpdated(id: Column['id'], cardId: Card['id']) {
 <template>
   <div class="kanboard">
     <KanColumn v-for="column in kanBoard.columns" :key="column.id" :id="column.id" :cards="column.cards"
-      :can-edit="column.canEdit" v-model:title="column.title" @add-new-card="handleAddNewCard"
+      :updated="column.updated" :can-edit="column.canEdit" v-model:title="column.title" @add-new-card="handleAddNewCard"
       @delete-card="handleDeleteCard" @delete-column="handleDeleteColumn" @clear-all-cards="handleClearAllCards"
       @disable-editing="handleDisableEditingColumn" @card-updated="handleCardUpdated" class="column">
     </KanColumn>

@@ -6,6 +6,7 @@ import KanCard from './KanCard.vue';
 import NewCardButton from './NewCardButton.vue';
 import type { Card, Column } from '@/stores/kanboard';
 import { useContentEditable } from '@/composables/useContenteditable';
+import LastEdit from './LastEdit.vue';
 
 const { focusEndOfElement } = useContentEditable();
 
@@ -19,17 +20,18 @@ const emit = defineEmits<{
   (e: 'cardUpdated', id: Column['id'], cardId: Card['id']): void
 }>();
 
-const { cards, id: columnId, canEdit } = defineProps<{
+const { cards, id: columnId, canEdit, updated: lastEdited } = defineProps<{
   cards: Card[],
   id: Column['id'],
   canEdit: boolean,
+  updated: number,
 }>();
 
 const title = defineModel<string>('title');
 const isEditingTitle = ref(false);
 const titleElement = ref<HTMLElement>();
 
-const cardsCounter = computed(() => cards.length || '');
+const cardsCounter = computed(() => cards.filter(card => !card.isNew).length || '');
 
 function handleTitleDoubleClick() {
   if (isEditingTitle.value || !canEdit) return;
@@ -93,10 +95,9 @@ function handleCardUpdated(id: Card['id']) {
 <template>
   <div class="column">
     <div class="header">
-      <div class="title">
-        <div ref="titleElement" :class="{ 'title-content': true, 'disabled': !canEdit }"
-          :contenteditable="isEditingTitle" @dblclick="handleTitleDoubleClick" @blur="saveTitle"
-          @keydown="handleKeyDown">
+      <div :class="{ 'title': true, 'disabled': !canEdit }">
+        <div ref="titleElement" :class="{ 'title-content': true, }" :contenteditable="isEditingTitle"
+          @dblclick="handleTitleDoubleClick" @blur="saveTitle" @keydown="handleKeyDown">
           {{ title }}
 
         </div>
@@ -115,10 +116,12 @@ function handleCardUpdated(id: Card['id']) {
       <div v-if="canEdit" class="new-card-button">
         <NewCardButton @new-click="handleNewCardClick" />
       </div>
+      <LastEdit v-if="cardsCounter" :class="{ 'disabled': !canEdit }" :last-edited="lastEdited"> Last updated ... ago
+      </LastEdit>
     </div>
     <div class="footer">
       <ButtonStack>
-        <BaseButton @click="emit('sortCards', columnId)">Sort</BaseButton>
+        <BaseButton :disabled="!canEdit" @click="emit('sortCards', columnId)">Sort</BaseButton>
         <BaseButton :disabled="!canEdit" @click="handleClearAllClick">Clear All</BaseButton>
       </ButtonStack>
     </div>
@@ -161,7 +164,8 @@ function handleCardUpdated(id: Card['id']) {
   cursor: pointer;
 }
 
-.title-content.disabled {
+.disabled {
+  opacity: 0.6;
   cursor: auto;
 }
 

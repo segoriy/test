@@ -15,6 +15,7 @@ type Card = {
   canEdit: boolean;
   id: number;
   isNew: boolean;
+  updated: number;
 }
 
 const genId = () => Date.now() + Math.random();
@@ -107,6 +108,7 @@ export const useKanBoardStore = defineStore('kanBoard', () => {
       canEdit: column.canEdit,
       id: genId(),
       isNew: true,
+      updated: Date.now(),
     })
   }
 
@@ -153,10 +155,14 @@ export const useKanBoardStore = defineStore('kanBoard', () => {
 
     if (overall) {
       const newCards = shuffleOverall(columns.value.map((col) => col.cards));
-      columns.value.forEach((col, i) => col.cards = newCards[i])
+      columns.value.forEach((col, i) => {
+        col.cards = newCards[i];
+        col.updated = Date.now();
+      })
     } else {
       columns.value.forEach((col) => {
         col.cards = shuffle(col.cards);
+        col.updated = Date.now();
       })
     }
   }
@@ -168,8 +174,9 @@ export const useKanBoardStore = defineStore('kanBoard', () => {
 
     column.updated = Date.now();
     const card = getCardById.value(column, cardId);
-    if (!card || !card.isNew) return;
-    card.isNew = false;
+    if (!card) return;
+    if (card.isNew) card.isNew = false;
+    card.updated = column.updated;
   }
 
   return { columns, shuffleColumns, addColumn, shuffleCards, toggleEditing, deleteColumn, addNewCard, deleteCard, clearAllCards, toggleEditingAll, canEditAll, handleCardUpdated }
