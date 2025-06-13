@@ -1,13 +1,22 @@
 <script setup lang="ts">
-import { useKanBoardStore } from '@/stores/kanboard'
+import { useKanBoardStore, type Card, type Column } from '@/stores/kanboard'
 import KanColumn from './KanColumn.vue';
 
 const kanBoard = useKanBoardStore();
 
+function handleAddNewCard(id: Column['id']) {
+  kanBoard.addNewCard(id);
+}
+
+function handleDeleteCard(id: Column['id'], cardId: Card['id']) {
+  kanBoard.deleteCard(id, cardId);
+}
+
 </script>
 <template>
   <div class="kanboard">
-    <KanColumn v-for="column in kanBoard.columns" :key="column.id" class="column">
+    <KanColumn v-for="{ id, cards } in kanBoard.columns" :key="id" :id="id" :cards="cards"
+      @add-new-card="handleAddNewCard" @delete-card="handleDeleteCard" class="column">
     </KanColumn>
   </div>
 </template>

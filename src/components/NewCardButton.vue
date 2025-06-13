@@ -1,7 +1,7 @@
 <script setup lang="ts">
 </script>
 <template>
-  <button>
+  <button @click="$emit('newClick')">
     New Card
   </button>
 </template>

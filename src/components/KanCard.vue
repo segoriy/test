@@ -9,7 +9,7 @@ const isDraggable = ref(false);
 
 </script>
 <template>
-  <div class="card">
+  <div class="card" @contextmenu.prevent.stop.="$emit('delete-card')">
     <div :class="{
       title: true,
       'is-draggable': !isDraggable,

@@ -1,8 +1,34 @@
 <script setup lang="ts">
+import { computed } from 'vue';
 import BaseButton from './BaseButton.vue';
 import ButtonStack from './ButtonStack.vue';
 import KanCard from './KanCard.vue';
 import NewCardButton from './NewCardButton.vue';
+import type { Card, Column } from '@/stores/kanboard';
+
+const emit = defineEmits<{
+  (e: 'addNewCard', id: Column['id']): void
+  (e: 'deleteCard', columnId: Column['id'], cardId: Card['id']): void
+  (e: 'sortCards', id: Column['id']): void
+  (e: 'clearAllCards', id: Column['id']): void
+  (e: 'disableEditing', id: Column['id']): void
+  (e: 'deleteColumn', id: Column['id']): void
+}>();
+
+const { cards, id: columnId } = defineProps<{
+  cards: Card[],
+  id: Column['id'],
+}>();
+
+const cardsCounter = computed(() => cards.length);
+
+function handleNewCardClick(event) {
+  emit('addNewCard', columnId);
+}
+
+function handleDeleteExistingCard(id: Card['id']) {
+  emit('deleteCard', columnId, id);
+}
 
 </script>
 <template>
@@ -13,7 +39,7 @@ import NewCardButton from './NewCardButton.vue';
           <slot name="title">
             TOdO
           </slot>
-          <span class="card-counter"> 3 </span>
+          <span class="card-counter"> {{ cardsCounter }} </span>
         </p>
       </div>
       <ButtonStack>
@@ -22,11 +48,10 @@ import NewCardButton from './NewCardButton.vue';
       </ButtonStack>
     </div>
     <div class='body'>
-      <KanCard> Hello </KanCard>
-      <KanCard> Hello </KanCard>
-      <KanCard> Hello </KanCard>
+      <KanCard v-for="card in cards" :key="card.id" @delete-card="handleDeleteExistingCard(card.id)"> {{ card.title }}
+      </KanCard>
       <div class="new-card-button">
-        <NewCardButton />
+        <NewCardButton @new-click="handleNewCardClick" />
       </div>
       <div class="last-updated">
 
