@@ -42,13 +42,6 @@ export const useKanBoardStore = defineStore('kanBoard', () => {
       updated: 0,
       canEdit: true,
     },
-    {
-      title: 'done',
-      id: genId(),
-      cards: [],
-      updated: 0,
-      canEdit: true,
-    }
   ]);
 
   const getColumnById = computed(() => (id: Column["id"]) => {
@@ -56,8 +49,19 @@ export const useKanBoardStore = defineStore('kanBoard', () => {
   });
 
   function addColumn() {
-
+    columns.value.push({
+      title: ' ',
+      id: genId(),
+      cards: [],
+      updated: 0,
+      canEdit: true,
+    })
   }
+
+  function deleteColumn(id: Column['id']) {
+    columns.value = columns.value.filter((el) => el.id !== id);
+  }
+
 
   function addNewCard(id: Column["id"]) {
     const column = getColumnById.value(id);
@@ -84,9 +88,6 @@ export const useKanBoardStore = defineStore('kanBoard', () => {
   }
 
 
-  function deleteColumn(column: Column) {
-
-  }
 
   function disableEditing() {
 

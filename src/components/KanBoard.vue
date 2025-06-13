@@ -12,11 +12,16 @@ function handleDeleteCard(id: Column['id'], cardId: Card['id']) {
   kanBoard.deleteCard(id, cardId);
 }
 
+function handleDeleteColumn(id: Column['id']) {
+  kanBoard.deleteColumn(id);
+}
+
 </script>
 <template>
   <div class="kanboard">
-    <KanColumn v-for="{ id, cards } in kanBoard.columns" :key="id" :id="id" :cards="cards"
-      @add-new-card="handleAddNewCard" @delete-card="handleDeleteCard" class="column">
+    <KanColumn v-for="column in kanBoard.columns" :key="column.id" :id="column.id" :cards="column.cards"
+      v-model:title="column.title" @add-new-card="handleAddNewCard" @delete-card="handleDeleteCard"
+      @delete-column="handleDeleteColumn(column.id)" class="column">
     </KanColumn>
   </div>
 </template>
