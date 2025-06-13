@@ -20,12 +20,17 @@ function handleClearAllCards(id: Column['id']) {
   kanBoard.clearAllCards(id);
 }
 
+function handleDisableEditingColumn(id: Column['id']) {
+  kanBoard.toggleEditing(id);
+}
+
 </script>
 <template>
   <div class="kanboard">
     <KanColumn v-for="column in kanBoard.columns" :key="column.id" :id="column.id" :cards="column.cards"
-      v-model:title="column.title" @add-new-card="handleAddNewCard" @delete-card="handleDeleteCard"
-      @delete-column="handleDeleteColumn(column.id)" @clear-all-cards="handleClearAllCards" class="column">
+      :can-edit="column.canEdit" v-model:title="column.title" @add-new-card="handleAddNewCard"
+      @delete-card="handleDeleteCard" @delete-column="handleDeleteColumn" @clear-all-cards="handleClearAllCards"
+      @disable-editing="handleDisableEditingColumn" class="column">
     </KanColumn>
   </div>
 </template>

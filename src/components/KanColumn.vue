@@ -15,13 +15,14 @@ const emit = defineEmits<{
   (e: 'sortCards', id: Column['id']): void
   (e: 'clearAllCards', id: Column['id']): void
   (e: 'disableEditing', id: Column['id']): void
-  (e: 'deleteColumn'): void
+  (e: 'deleteColumn', id: Column['id']): void
   (e: 'updateColumnTitle', id: Column['id'], title: string): void
 }>();
 
-const { cards, id: columnId } = defineProps<{
+const { cards, id: columnId, canEdit } = defineProps<{
   cards: Card[],
   id: Column['id'],
+  canEdit: boolean,
 }>();
 
 const title = defineModel<string>('title');
@@ -72,8 +73,12 @@ function handleDeleteExistingCard(id: Card['id']) {
   emit('deleteCard', columnId, id);
 }
 
+function handleDisableEditingClick() {
+  emit('disableEditing', columnId);
+}
+
 function handleDeleteColumnClick() {
-  emit('deleteColumn');
+  emit('deleteColumn', columnId);
 }
 
 function handleClearAllClick() {
@@ -94,21 +99,21 @@ function handleClearAllClick() {
 
       </div>
       <ButtonStack>
-        <BaseButton @click="emit('disableEditing', columnId)">Disable Editing</BaseButton>
+        <BaseButton @click="handleDisableEditingClick"> {{ canEdit ? 'Disable' : 'Enable' }} Editing</BaseButton>
         <BaseButton @click="handleDeleteColumnClick">Delete Column</BaseButton>
       </ButtonStack>
     </div>
     <div class='body'>
       <KanCard v-for="card in cards" :key="card.id" @delete-card="handleDeleteExistingCard(card.id)"
-        v-model:title="card.title" v-model:content="card.content" />
-      <div class="new-card-button">
+        v-model:title="card.title" v-model:content="card.content" :can-edit="canEdit" />
+      <div v-if="canEdit" class="new-card-button">
         <NewCardButton @new-click="handleNewCardClick" />
       </div>
     </div>
     <div class="footer">
       <ButtonStack>
         <BaseButton @click="emit('sortCards', columnId)">Sort</BaseButton>
-        <BaseButton @click="handleClearAllClick">Clear All</BaseButton>
+        <BaseButton :disabled="!canEdit" @click="handleClearAllClick">Clear All</BaseButton>
       </ButtonStack>
     </div>
   </div>
