@@ -43,15 +43,13 @@ function handleTitleDoubleClick() {
 
 function saveTitle() {
   if (!isEditingTitle.value || !titleElement.value) return;
-
   const newTitle = titleElement.value.textContent?.trim() || '';
   title.value = newTitle;
   isEditingTitle.value = false;
 }
 
-function cancelEdit() {
+function cancelEditTitle() {
   if (!titleElement.value) return;
-
   titleElement.value.innerText = title.value || '';
   isEditingTitle.value = false;
 }
@@ -62,7 +60,7 @@ function handleKeyDown(e: KeyboardEvent) {
     saveTitle();
   } else if (e.key === 'Escape') {
     e.preventDefault();
-    cancelEdit();
+    cancelEditTitle();
   }
 }
 
@@ -76,6 +74,10 @@ function handleDeleteExistingCard(id: Card['id']) {
 
 function handleDeleteColumnClick() {
   emit('deleteColumn');
+}
+
+function handleClearAllClick() {
+  emit('clearAllCards', columnId)
 }
 </script>
 
@@ -106,7 +108,7 @@ function handleDeleteColumnClick() {
     <div class="footer">
       <ButtonStack>
         <BaseButton @click="emit('sortCards', columnId)">Sort</BaseButton>
-        <BaseButton @click="emit('clearAllCards', columnId)">Clear All</BaseButton>
+        <BaseButton @click="handleClearAllClick">Clear All</BaseButton>
       </ButtonStack>
     </div>
   </div>

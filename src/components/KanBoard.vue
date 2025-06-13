@@ -16,12 +16,16 @@ function handleDeleteColumn(id: Column['id']) {
   kanBoard.deleteColumn(id);
 }
 
+function handleClearAllCards(id: Column['id']) {
+  kanBoard.clearAllCards(id);
+}
+
 </script>
 <template>
   <div class="kanboard">
     <KanColumn v-for="column in kanBoard.columns" :key="column.id" :id="column.id" :cards="column.cards"
       v-model:title="column.title" @add-new-card="handleAddNewCard" @delete-card="handleDeleteCard"
-      @delete-column="handleDeleteColumn(column.id)" class="column">
+      @delete-column="handleDeleteColumn(column.id)" @clear-all-cards="handleClearAllCards" class="column">
     </KanColumn>
   </div>
 </template>

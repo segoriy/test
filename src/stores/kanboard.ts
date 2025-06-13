@@ -83,6 +83,14 @@ export const useKanBoardStore = defineStore('kanBoard', () => {
     column.cards = column.cards.filter((el) => el.id !== cardId);
   }
 
+  function clearAllCards(id: Column['id']) {
+    const column = getColumnById.value(id);
+
+    if (!column) return;
+
+    column.cards = [];
+  }
+
   function shuffleColumns() {
 
   }
@@ -97,7 +105,7 @@ export const useKanBoardStore = defineStore('kanBoard', () => {
 
   }
 
-  return { columns, shuffleColumns, addColumn, shuffleCards, disableEditing, deleteColumn, addNewCard, deleteCard }
+  return { columns, shuffleColumns, addColumn, shuffleCards, disableEditing, deleteColumn, addNewCard, deleteCard, clearAllCards }
 });
 
 export type { Column, Card };
