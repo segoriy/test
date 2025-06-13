@@ -13,6 +13,14 @@ function handleToggleEditingClick() {
   kanBoard.toggleEditingAll();
 };
 
+function handleShuffleColumnsClick() {
+  kanBoard.shuffleColumns();
+};
+
+function handleShuffleCardsClick() {
+  kanBoard.shuffleCards();
+};
+
 </script>
 <template>
   <ButtonStack>
@@ -20,8 +28,8 @@ function handleToggleEditingClick() {
     <BaseButton :disabled="!kanBoard.columns.length" @click="handleToggleEditingClick"> {{ kanBoard.canEditAll ?
       'Disable' : 'Enable' }} Editing
     </BaseButton>
-    <BaseButton> Shuffle Columns</BaseButton>
-    <BaseButton> Shuffle Cards</BaseButton>
+    <BaseButton @click="handleShuffleColumnsClick"> Shuffle Columns</BaseButton>
+    <BaseButton @click="handleShuffleCardsClick"> Shuffle Cards</BaseButton>
   </ButtonStack>
 </template>
 <style scoped></style>

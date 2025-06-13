@@ -18,6 +18,26 @@ type Card = {
 
 const genId = () => Date.now() + Math.random();
 
+const shuffle = (array: any[]) => array.sort((el) => Math.random() <= 0.5 ? 1 : -1);
+
+function shuffleOverall(arrays: any[]) {
+  const allElements = arrays.flat();
+
+  for (let i = allElements.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [allElements[i], allElements[j]] = [allElements[j], allElements[i]];
+  }
+
+  const result = Array(arrays.length).fill([]).map(() => []) as any[];
+
+  allElements.forEach(element => {
+    const randomArrayIndex = Math.floor(Math.random() * arrays.length);
+    result[randomArrayIndex].push(element);
+  });
+
+  return result;
+}
+
 export const useKanBoardStore = defineStore('kanBoard', () => {
   const columns = ref<Column[]>([
     {
@@ -99,10 +119,6 @@ export const useKanBoardStore = defineStore('kanBoard', () => {
     column.cards = [];
   }
 
-  function shuffleColumns() {
-
-  }
-
   function toggleEditing(id: Column['id']) {
     const column = getColumnById.value(id);
 
@@ -119,8 +135,21 @@ export const useKanBoardStore = defineStore('kanBoard', () => {
     }
   }
 
-  function shuffleCards(column: Column) {
+  function shuffleColumns() {
+    columns.value = shuffle(columns.value);
+  }
 
+  function shuffleCards() {
+    const overall = Math.random() <= 0.1;
+
+    if (overall) {
+      const newCards = shuffleOverall(columns.value.map((col) => col.cards));
+      columns.value.forEach((col, i) => col.cards = newCards[i])
+    } else {
+      columns.value.forEach((col) => {
+        col.cards = shuffle(col.cards);
+      })
+    }
   }
 
   return { columns, shuffleColumns, addColumn, shuffleCards, toggleEditing, deleteColumn, addNewCard, deleteCard, clearAllCards, toggleEditingAll, canEditAll }
