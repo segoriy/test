@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { ref, nextTick, computed } from 'vue';
-import BaseButton from './BaseButton.vue';
-import ButtonStack from './ButtonStack.vue';
-import KanCard from './KanCard.vue';
-import NewCardButton from './NewCardButton.vue';
-import type { Card, Column } from '@/stores/kanboard';
-import { useContentEditable } from '@/composables/useContenteditable';
-import LastEdit from './LastEdit.vue';
+import { ref, nextTick, computed, watch } from 'vue'
+import BaseButton from './BaseButton.vue'
+import ButtonStack from './ButtonStack.vue'
+import KanCard from './KanCard.vue'
+import NewCardButton from './NewCardButton.vue'
+import type { Card, Column } from '@/stores/kanboard'
+import { useContentEditable } from '@/composables/useContenteditable'
+import LastEdit from './LastEdit.vue'
 
-const { focusEndOfElement } = useContentEditable();
+const { focusEndOfElement } = useContentEditable()
 
 const emit = defineEmits<{
   (e: 'addNewCard', id: Column['id']): void
@@ -18,69 +18,88 @@ const emit = defineEmits<{
   (e: 'disableEditing', id: Column['id']): void
   (e: 'deleteColumn', id: Column['id']): void
   (e: 'cardUpdated', id: Column['id'], cardId: Card['id']): void
-}>();
+}>()
 
-const { cards, id: columnId, canEdit, updated: lastEdited } = defineProps<{
-  cards: Card[],
-  id: Column['id'],
-  canEdit: boolean,
-  updated: number,
-}>();
+const {
+  cards,
+  id: columnId,
+  canEdit,
+  updated: lastEdited,
+} = defineProps<{
+  cards: Card[]
+  id: Column['id']
+  canEdit: boolean
+  updated: number
+}>()
 
-const title = defineModel<string>('title');
-const isEditingTitle = ref(false);
-const titleElement = ref<HTMLElement>();
+const title = defineModel<string>('title')
+const isEditingTitle = ref(false)
+const titleElement = ref<HTMLElement>()
 
-const cardsCounter = computed(() => cards.filter(card => !card.isNew).length || '');
+const sortType = ref<'none' | 'asc' | 'desc'>('none')
+
+watch(() => cards, (newVal, oldVal) => {
+  sortType.value = 'none'
+})
+
+const sortedCards = computed(() => {
+  if (sortType.value == 'none') return [...cards]
+
+  return [...cards].sort((a, b) => {
+    return (sortType.value === 'asc') ? a.updated - b.updated : b.updated - a.updated;
+  })
+})
+
+const cardsCounter = computed(() => cards.filter((card) => !card.isNew).length || '')
 
 function handleTitleDoubleClick() {
-  if (isEditingTitle.value || !canEdit) return;
+  if (isEditingTitle.value || !canEdit) return
 
-  isEditingTitle.value = true;
+  isEditingTitle.value = true
   nextTick(() => {
     if (titleElement.value) {
-      focusEndOfElement(titleElement);
+      focusEndOfElement(titleElement)
     }
-  });
+  })
 }
 
 function saveTitle() {
-  if (!isEditingTitle.value || !titleElement.value) return;
-  const newTitle = titleElement.value.textContent?.trim() || '';
-  title.value = newTitle;
-  isEditingTitle.value = false;
+  if (!isEditingTitle.value || !titleElement.value) return
+  const newTitle = titleElement.value.textContent?.trim() || ''
+  title.value = newTitle
+  isEditingTitle.value = false
 }
 
 function cancelEditTitle() {
-  if (!titleElement.value) return;
-  titleElement.value.innerText = title.value || '';
-  isEditingTitle.value = false;
+  if (!titleElement.value) return
+  titleElement.value.innerText = title.value || ''
+  isEditingTitle.value = false
 }
 
 function handleKeyDown(e: KeyboardEvent) {
   if (e.key === 'Enter') {
-    e.preventDefault();
-    saveTitle();
+    e.preventDefault()
+    saveTitle()
   } else if (e.key === 'Escape') {
-    e.preventDefault();
-    cancelEditTitle();
+    e.preventDefault()
+    cancelEditTitle()
   }
 }
 
 function handleNewCardClick() {
-  emit('addNewCard', columnId);
+  emit('addNewCard', columnId)
 }
 
 function handleDeleteExistingCard(id: Card['id']) {
-  emit('deleteCard', columnId, id);
+  emit('deleteCard', columnId, id)
 }
 
 function handleDisableEditingClick() {
-  emit('disableEditing', columnId);
+  emit('disableEditing', columnId)
 }
 
 function handleDeleteColumnClick() {
-  emit('deleteColumn', columnId);
+  emit('deleteColumn', columnId)
 }
 
 function handleClearAllClick() {
@@ -88,41 +107,78 @@ function handleClearAllClick() {
 }
 
 function handleCardUpdated(id: Card['id']) {
-  emit('cardUpdated', columnId, id);
+  emit('cardUpdated', columnId, id)
+}
+
+function handleSortCardsClick() {
+  sortType.value = sortType.value === 'asc' ? 'desc' : 'asc';
 }
 </script>
 
 <template>
   <div class="column">
     <div class="header">
-      <div :class="{ 'title': true, 'disabled': !canEdit }">
-        <div ref="titleElement" :class="{ 'title-content': true, }" :contenteditable="isEditingTitle"
-          @dblclick="handleTitleDoubleClick" @blur="saveTitle" @keydown="handleKeyDown">
+      <div :class="{ title: true, disabled: !canEdit }">
+        <div
+          ref="titleElement"
+          :class="{ 'title-content': true }"
+          :contenteditable="isEditingTitle"
+          @dblclick="handleTitleDoubleClick"
+          @blur="saveTitle"
+          @keydown="handleKeyDown"
+        >
           {{ title }}
-
         </div>
-        <div class="card-counter"> {{ cardsCounter }} </div>
-
+        <div class="card-counter">{{ cardsCounter }}</div>
       </div>
       <ButtonStack>
-        <BaseButton @click="handleDisableEditingClick"> {{ canEdit ? 'Disable' : 'Enable' }} Editing</BaseButton>
-        <BaseButton @click="handleDeleteColumnClick" :disabled="!canEdit">Delete Column</BaseButton>
+        <BaseButton @click="handleDisableEditingClick">
+          {{ canEdit ? 'Disable' : 'Enable' }} Editing</BaseButton
+        >
+        <BaseButton
+          @click="handleDeleteColumnClick"
+          :disabled="!canEdit"
+          >Delete Column</BaseButton
+        >
       </ButtonStack>
     </div>
-    <div class='body'>
-      <KanCard v-for="card in cards" :key="card.id" @delete-card="handleDeleteExistingCard(card.id)"
-        v-model:title="card.title" v-model:content="card.content" :can-edit="canEdit"
-        @updated="handleCardUpdated(card.id)" />
-      <div v-if="canEdit" class="new-card-button">
+    <div class="body">
+      <KanCard
+        v-for="card in sortedCards"
+        :key="card.id"
+        v-model:title="card.title"
+        v-model:content="card.content"
+        :can-edit="canEdit"
+        @updated="handleCardUpdated(card.id)"
+        @delete-card="handleDeleteExistingCard(card.id)"
+      />
+      <div
+        v-if="canEdit"
+        class="new-card-button"
+      >
         <NewCardButton @new-click="handleNewCardClick" />
       </div>
-      <LastEdit v-if="cardsCounter" :class="{ 'disabled': !canEdit }" :last-edited="lastEdited"> Last updated ... ago
-      </LastEdit>
+      <LastEdit
+        v-if="cardsCounter"
+        :class="{ disabled: !canEdit }"
+        :last-edited="lastEdited"
+      />
     </div>
     <div class="footer">
       <ButtonStack>
-        <BaseButton :disabled="!canEdit" @click="emit('sortCards', columnId)">Sort</BaseButton>
-        <BaseButton :disabled="!canEdit" @click="handleClearAllClick">Clear All</BaseButton>
+        <BaseButton
+          :disabled="!canEdit"
+          @click="handleSortCardsClick"
+          >Sort
+          <span class="text-secondary">
+            {{ sortType === 'asc' ? 'ascending' : sortType === 'desc' ? 'descending' : '' }}
+          </span>
+        </BaseButton>
+        <BaseButton
+          :disabled="!canEdit"
+          @click="handleClearAllClick"
+          >Clear All</BaseButton
+        >
       </ButtonStack>
     </div>
   </div>
@@ -139,7 +195,7 @@ function handleCardUpdated(id: Card['id']) {
   width: var(--column-width);
   scroll-snap-align: start;
   padding: var(--column-padding);
-  background: var(--color-background-column);
+  background: var(--color-background-1);
   border-radius: 12px;
 }
 
@@ -158,18 +214,24 @@ function handleCardUpdated(id: Card['id']) {
   flex-direction: row;
 }
 
+.disabled {
+  opacity: 0.6;
+}
+
 .title-content {
   color: var(--color-text-secondary);
   text-transform: uppercase;
+}
+.title:not(.disabled) .title-content:hover {
+  color: var(--color-text);
   cursor: pointer;
 }
+/* :has(.disabled) .title-content:hover {
+  color: inherit;
+} */
 
-.disabled {
-  opacity: 0.6;
-  cursor: auto;
-}
-
-.title-content[contenteditable="true"] {
+.title-content[contenteditable='true'] {
+  color: var(--color-text);
   cursor: text;
   outline: none;
 }

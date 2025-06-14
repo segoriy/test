@@ -36,9 +36,10 @@
   --shadow-24: 0 24px 38px rgba(0, 0, 0, 0.25), 0 24px 38px rgba(0, 0, 0, 0.22);
 
   --color-background: var(--k-c-white);
-  --color-background-1: var(--k-c-grey-1);
-  --color-background-2: var(--k-c-grey-2);
-  --color-background-3: var(--k-c-grey-3);
+  --color-background-1: var(--k-c-grey);
+  --color-background-2: var(--k-c-grey-1);
+  --color-background-3: var(--k-c-grey-2);
+  --color-background-4: var(--k-c-grey-3);
 
   --color-border: var(--k-c-divider-light-1);
   --color-border-hover: var(--k-c-divider-light-1);
@@ -48,8 +49,6 @@
   --color-text: var(--k-c-text-light-1);
   --color-text-secondary: var(--k-c-text-light-3);
   --color-text-counter: var(--k-c-text-light-2);
-
-  --color-background-column: var(--k-c-grey);
 
   --kanboard-column-gap: 24px;
   --main-padding: 24px;
@@ -113,4 +112,8 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.text-secondary {
+  color: var(--color-text-secondary);
 }
