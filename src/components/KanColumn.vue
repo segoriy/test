@@ -127,7 +127,7 @@ function handleSortCardsClick() {
           :class="{ 'title-content': true }"
           :contenteditable="isEditingTitle"
           @dblclick="handleTitleDoubleClick"
-          @blur="saveTitle"
+          @blur="cancelEditTitle"
           @keydown="handleKeyDown"
         >
           {{ title }}
