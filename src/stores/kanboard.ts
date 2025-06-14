@@ -1,5 +1,6 @@
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { defineStore } from 'pinia'
+import { useAppStore } from './app';
 
 type Column = {
   title: string;
@@ -41,29 +42,11 @@ function shuffleOverall(arrays: any[]) {
 }
 
 export const useKanBoardStore = defineStore('kanBoard', () => {
-  const columns = ref<Column[]>([
-    {
-      title: 'Todo',
-      id: genId(),
-      cards: [],
-      updated: 0,
-      canEdit: true,
-    },
-    {
-      title: 'in progress',
-      id: genId(),
-      cards: [],
-      updated: 0,
-      canEdit: false,
-    },
-    {
-      title: 'done',
-      id: genId(),
-      cards: [],
-      updated: 0,
-      canEdit: true,
-    },
-  ]);
+
+  const columns = ref<Column[]>([]);
+
+  const appStore = useAppStore();
+  watch(columns, () => appStore.saveData(), { deep: true });
 
   const getColumnById = computed(() => (id: Column["id"]) => {
     return columns.value.find(item => item.id === id);
@@ -179,7 +162,55 @@ export const useKanBoardStore = defineStore('kanBoard', () => {
     card.updated = column.updated;
   }
 
-  return { columns, shuffleColumns, addColumn, shuffleCards, toggleEditing, deleteColumn, addNewCard, deleteCard, clearAllCards, toggleEditingAll, canEditAll, handleCardUpdated }
+  function getData() {
+    return JSON.parse(JSON.stringify(columns.value));
+  }
+
+  function restoreData(data?: Column[] | undefined) {
+    if (data && data.length) {
+      columns.value = data;
+    } else {
+
+      columns.value = [{
+        title: 'Todo',
+        id: genId(),
+        cards: [],
+        updated: 0,
+        canEdit: true,
+      },
+      {
+        title: 'in progress',
+        id: genId(),
+        cards: [],
+        updated: 0,
+        canEdit: true,
+      },
+      {
+        title: 'done',
+        id: genId(),
+        cards: [],
+        updated: 0,
+        canEdit: true,
+      },]
+    }
+  }
+
+  return {
+    columns,
+    canEditAll,
+    shuffleColumns,
+    addColumn,
+    shuffleCards,
+    toggleEditing,
+    deleteColumn,
+    addNewCard,
+    deleteCard,
+    clearAllCards,
+    toggleEditingAll,
+    handleCardUpdated,
+    getData,
+    restoreData,
+  }
 });
 
 export type { Column, Card };
