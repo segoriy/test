@@ -38,15 +38,18 @@ const titleElement = ref<HTMLElement>()
 
 const sortType = ref<'none' | 'asc' | 'desc'>('none')
 
-watch(() => cards, (newVal, oldVal) => {
-  sortType.value = 'none'
-})
+watch(
+  () => cards,
+  (newVal, oldVal) => {
+    sortType.value = 'none'
+  },
+)
 
 const sortedCards = computed(() => {
   if (sortType.value == 'none') return [...cards]
 
   return [...cards].sort((a, b) => {
-    return (sortType.value === 'asc') ? a.updated - b.updated : b.updated - a.updated;
+    return sortType.value === 'asc' ? a.updated - b.updated : b.updated - a.updated
   })
 })
 
@@ -111,7 +114,7 @@ function handleCardUpdated(id: Card['id']) {
 }
 
 function handleSortCardsClick() {
-  sortType.value = sortType.value === 'asc' ? 'desc' : 'asc';
+  sortType.value = sortType.value === 'asc' ? 'desc' : 'asc'
 }
 </script>
 
@@ -142,7 +145,11 @@ function handleSortCardsClick() {
         >
       </ButtonStack>
     </div>
-    <div class="body">
+    <TransitionGroup
+      name="kan-card"
+      tag="div"
+      class="body"
+    >
       <KanCard
         v-for="card in sortedCards"
         :key="card.id"
@@ -163,7 +170,7 @@ function handleSortCardsClick() {
         :class="{ disabled: !canEdit }"
         :last-edited="lastEdited"
       />
-    </div>
+    </TransitionGroup>
     <div class="footer">
       <ButtonStack>
         <BaseButton
@@ -226,9 +233,6 @@ function handleSortCardsClick() {
   color: var(--color-text);
   cursor: pointer;
 }
-/* :has(.disabled) .title-content:hover {
-  color: inherit;
-} */
 
 .title-content[contenteditable='true'] {
   color: var(--color-text);
@@ -255,4 +259,29 @@ function handleSortCardsClick() {
   margin-top: auto;
   justify-items: center;
 }
+
+.kan-card-move {
+  transition: all 0.2s ease;
+  will-change: transform;
+}
+
+.kan-card-enter-active {
+  transition: all 0.1s ease-out;
+}
+
+.kan-card-leave-active {
+  transition: all 0.1s ease-in;
+  transform: translateX(-20px);
+}
+
+.kan-card-enter-from {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.kan-card-leave-to {
+  opacity: 0;
+  transform: scale(0.95);
+}
+
 </style>

@@ -1,42 +1,57 @@
 <script setup lang="ts">
 import { useKanBoardStore, type Card, type Column } from '@/stores/kanboard'
-import KanColumn from './KanColumn.vue';
+import KanColumn from './KanColumn.vue'
 
-const kanBoard = useKanBoardStore();
+const kanBoard = useKanBoardStore()
 
 function handleAddNewCard(id: Column['id']) {
-  kanBoard.addNewCard(id);
+  kanBoard.addNewCard(id)
 }
 
 function handleDeleteCard(id: Column['id'], cardId: Card['id']) {
-  kanBoard.deleteCard(id, cardId);
+  kanBoard.deleteCard(id, cardId)
 }
 
 function handleDeleteColumn(id: Column['id']) {
-  kanBoard.deleteColumn(id);
+  kanBoard.deleteColumn(id)
 }
 
 function handleClearAllCards(id: Column['id']) {
-  kanBoard.clearAllCards(id);
+  kanBoard.clearAllCards(id)
 }
 
 function handleDisableEditingColumn(id: Column['id']) {
-  kanBoard.toggleEditing(id);
+  kanBoard.toggleEditing(id)
 }
 
 function handleCardUpdated(id: Column['id'], cardId: Card['id']) {
-  kanBoard.handleCardUpdated(id, cardId);
+  kanBoard.handleCardUpdated(id, cardId)
 }
-
 </script>
 <template>
-  <div class="kanboard">
-    <KanColumn v-for="column in kanBoard.columns" :key="column.id" :id="column.id" :cards="column.cards"
-      :updated="column.updated" :can-edit="column.canEdit" v-model:title="column.title" @add-new-card="handleAddNewCard"
-      @delete-card="handleDeleteCard" @delete-column="handleDeleteColumn" @clear-all-cards="handleClearAllCards"
-      @disable-editing="handleDisableEditingColumn" @card-updated="handleCardUpdated" class="column">
+  <TransitionGroup
+    name="column"
+    tag="div"
+    class="kanboard"
+  >
+    <KanColumn
+      v-for="column in kanBoard.columns"
+      :key="column.id"
+      :id="column.id"
+      :cards="column.cards"
+      :updated="column.updated"
+      :can-edit="column.canEdit"
+      v-model:title="column.title"
+      @add-new-card="handleAddNewCard"
+      @delete-card="handleDeleteCard"
+      @delete-column="handleDeleteColumn"
+      @clear-all-cards="handleClearAllCards"
+      @disable-editing="handleDisableEditingColumn"
+      @card-updated="handleCardUpdated"
+      class="column"
+    >
     </KanColumn>
-  </div>
+  </TransitionGroup>
 </template>
 <style scoped>
 .kanboard {
@@ -50,5 +65,24 @@ function handleCardUpdated(id: Column['id'], cardId: Card['id']) {
   gap: var(--kanboard-column-gap);
   align-items: flex-start;
   justify-content: flex-start;
+}
+
+.column-move {
+  transition: transform 0.3s ease;
+}
+
+.column-enter-active,
+.column-leave-active {
+  transition: all 0.2s ease;
+}
+
+.column-enter-from,
+.column-leave-to {
+  opacity: 0;
+  transform: translateX(20px);
+}
+
+.column-leave-active {
+  transform: translateY(-20px);
 }
 </style>
