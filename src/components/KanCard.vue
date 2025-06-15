@@ -19,7 +19,7 @@ const { canEdit = true, isNew = true } = defineProps<{
 
 
 const emit = defineEmits<{
-  (e: 'delete-card'): void,
+  (e: 'delete-card', force: boolean): void,
   (e: 'updated'): void,
 }>()
 
@@ -88,6 +88,10 @@ function saveChanges() {
 }
 
 function cancelEditing() {
+  if (isNew) {
+      emit('delete-card', true);
+      return;
+  }
   isEditing.value = false;
   isButtonsVisible.value = false;
 
@@ -106,7 +110,7 @@ function checkChanges() {
 function handleKeyDown(e: KeyboardEvent) {
   if (e.key === 'Escape') {
     if (isNew) {
-      emit('delete-card');
+      emit('delete-card', true);
       return;
     }
     cancelEditing();
@@ -121,7 +125,8 @@ function handleKeyDown(e: KeyboardEvent) {
 function handleContext(event: Event) {
   if (blockEvent(event)) return;
   emit('updated');
-  emit('delete-card');
+  const force = isNew;
+  emit('delete-card', force);
 }
 
 function blockEvent(event: Event) {

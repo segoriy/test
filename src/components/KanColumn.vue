@@ -16,7 +16,7 @@ const { focusEndOfElement } = useContentEditable()
 
 const emit = defineEmits<{
   (e: 'addNewCard', id: Column['id']): void
-  (e: 'deleteCard', columnId: Column['id'], cardId: Card['id']): void
+  (e: 'deleteCard', columnId: Column['id'], cardId: Card['id'], force: boolean): void
   (e: 'sortCards', id: Column['id']): void
   (e: 'clearAllCards', id: Column['id']): void
   (e: 'disableEditing', id: Column['id']): void
@@ -39,6 +39,7 @@ const {
 const title = defineModel<string>('title')
 const isEditingTitle = ref(false)
 const titleElement = ref<HTMLElement>()
+
 
 const sortType = ref<'none' | 'asc' | 'desc'>('none')
 
@@ -97,8 +98,8 @@ function handleNewCardClick() {
   emit('addNewCard', columnId)
 }
 
-function handleDeleteExistingCard(id: Card['id']) {
-  emit('deleteCard', columnId, id)
+function handleDeleteExistingCard(id: Card['id'], force: boolean) {
+  emit('deleteCard', columnId, id, force)
 }
 
 function handleDisableEditingClick() {
@@ -110,7 +111,7 @@ function handleDeleteColumnClick() {
 }
 
 function handleClearAllClick() {
-  emit('clearAllCards', columnId)
+  emit('clearAllCards', columnId);
 }
 
 function handleCardUpdated(id: Card['id']) {
@@ -125,6 +126,7 @@ function handleSortCardsClick() {
   }
   sortType.value = nextSort[sortType.value] as Partial<'none' | 'asc' | 'desc'>
 }
+
 </script>
 
 <template>
@@ -171,7 +173,7 @@ function handleSortCardsClick() {
         :can-edit
         :is-new="card.isNew"
         @updated="handleCardUpdated(card.id)"
-        @delete-card="handleDeleteExistingCard(card.id)"
+        @delete-card="(force) => handleDeleteExistingCard(card.id, force)"
       />
       <div
         v-if="canEdit"
