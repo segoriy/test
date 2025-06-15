@@ -118,7 +118,12 @@ function handleCardUpdated(id: Card['id']) {
 }
 
 function handleSortCardsClick() {
-  sortType.value = sortType.value === 'asc' ? 'desc' : 'asc'
+  const nextSort = {
+    asc: 'desc',
+    desc: 'none',
+    none: 'asc',
+  }
+  sortType.value = nextSort[sortType.value] as Partial<'none' | 'asc' | 'desc'>
 }
 </script>
 
