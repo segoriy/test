@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, onUnmounted } from 'vue';
+import { onMounted } from 'vue';
 import { RouterView } from 'vue-router'
 import { useAppStore } from './stores/app';
 

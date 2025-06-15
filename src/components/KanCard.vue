@@ -4,6 +4,8 @@ import ButtonStack from './ButtonStack.vue';
 import BaseButton from './BaseButton.vue';
 import IconDrag from './icons/IconDrag.vue';
 import { useContentEditable } from '@/composables/useContenteditable';
+import IconCancel from './icons/IconCancel.vue';
+import IconApply from './icons/IconApply.vue';
 
 const { focusEndOfElement } = useContentEditable();
 
@@ -154,9 +156,11 @@ function blockEvent(event: Event) {
     <template v-if="isButtonsVisible">
       <ButtonStack>
         <BaseButton @click="saveChanges" :disabled="!hasChanges && !isNew">
+          <IconApply />
           Save
         </BaseButton>
         <BaseButton @click="cancelEditing">
+          <IconCancel />
           Cancel
         </BaseButton>
       </ButtonStack>

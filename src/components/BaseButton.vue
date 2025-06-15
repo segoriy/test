@@ -16,6 +16,10 @@ button {
   border-radius: 50px;
   font: var(--base-font);
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  column-gap: 4px;
 }
 
 button:active:not(:disabled) {

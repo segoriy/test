@@ -7,6 +7,10 @@ import NewCardButton from './NewCardButton.vue'
 import type { Card, Column } from '@/stores/kanboard'
 import { useContentEditable } from '@/composables/useContenteditable'
 import LastEdit from './LastEdit.vue'
+import IconDelete from './icons/IconDelete.vue'
+import IconPlay from './icons/IconPlay.vue'
+import IconPause from './icons/IconPause.vue'
+import IconSort from './icons/IconSort.vue'
 
 const { focusEndOfElement } = useContentEditable()
 
@@ -136,12 +140,16 @@ function handleSortCardsClick() {
       </div>
       <ButtonStack>
         <BaseButton @click="handleDisableEditingClick">
+          <IconPause v-if="canEdit" />
+          <IconPlay v-else />
           {{ canEdit ? 'Disable' : 'Enable' }} Editing</BaseButton
         >
         <BaseButton
           @click="handleDeleteColumnClick"
           :disabled="!canEdit"
-          >Delete Column</BaseButton
+        >
+          <IconDelete />
+          Delete Column</BaseButton
         >
       </ButtonStack>
     </div>
@@ -155,7 +163,8 @@ function handleSortCardsClick() {
         :key="card.id"
         v-model:title="card.title"
         v-model:content="card.content"
-        :can-edit="canEdit"
+        :can-edit
+        :is-new="card.isNew"
         @updated="handleCardUpdated(card.id)"
         @delete-card="handleDeleteExistingCard(card.id)"
       />
@@ -168,23 +177,28 @@ function handleSortCardsClick() {
       <LastEdit
         v-if="cardsCounter"
         :class="{ disabled: !canEdit }"
-        :last-edited="lastEdited"
+        :last-edited
       />
     </TransitionGroup>
     <div class="footer">
       <ButtonStack>
         <BaseButton
-          :disabled="!canEdit"
+          :disabled="!canEdit || !sortedCards.length"
           @click="handleSortCardsClick"
-          >Sort
+        >
+          <IconSort :sort-type />
+          Sort
           <span class="text-secondary">
             {{ sortType === 'asc' ? 'ascending' : sortType === 'desc' ? 'descending' : '' }}
           </span>
         </BaseButton>
         <BaseButton
-          :disabled="!canEdit"
+          :disabled="!canEdit || !sortedCards.length"
           @click="handleClearAllClick"
-          >Clear All</BaseButton
+        >
+          <IconDelete />
+
+          Clear All</BaseButton
         >
       </ButtonStack>
     </div>
@@ -283,5 +297,4 @@ function handleSortCardsClick() {
   opacity: 0;
   transform: scale(0.95);
 }
-
 </style>

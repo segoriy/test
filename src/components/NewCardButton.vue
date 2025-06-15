@@ -1,7 +1,10 @@
 <script setup lang="ts">
+import IconAdd from './icons/IconAdd.vue';
+
 </script>
 <template>
   <button @click="$emit('newClick')">
+    <IconAdd />
     New Card
   </button>
 </template>
@@ -13,6 +16,10 @@ button {
   border-radius: 8px;
   border: none;
   font: var(--base-font);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  column-gap: 4px;
 }
 
 button:hover {
