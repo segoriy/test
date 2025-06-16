@@ -240,6 +240,7 @@ function handleSortCardsClick() {
 .title {
   display: flex;
   flex-direction: row;
+  align-items: center;
 }
 
 .disabled {
@@ -262,7 +263,7 @@ function handleSortCardsClick() {
 }
 
 .card-counter {
-  margin-left: 8px;
+  margin: 0 6px;
   color: var(--color-text-counter);
   user-select: none;
 }

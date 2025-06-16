@@ -77,6 +77,10 @@ function startEditing() {
   });
 }
 
+function handleSaveClick() {
+  saveChanges();
+}
+
 function saveChanges() {
   if (!titleElement.value || !contentElement.value) return;
 
@@ -87,11 +91,15 @@ function saveChanges() {
   emit('updated');
 }
 
-function cancelEditing() {
+function handleCancelClick() {
   if (isNew) {
       emit('delete-card', true);
       return;
   }
+  cancelEditing();
+}
+
+function cancelEditing() {
   isEditing.value = false;
   isButtonsVisible.value = false;
 
@@ -160,11 +168,11 @@ function blockEvent(event: Event) {
 
     <template v-if="isButtonsVisible">
       <ButtonStack>
-        <BaseButton @click="saveChanges" :disabled="!hasChanges && !isNew">
+        <BaseButton @click="handleSaveClick" :disabled="!hasChanges && !isNew">
           <IconApply />
           Save
         </BaseButton>
-        <BaseButton @click="cancelEditing">
+        <BaseButton @click="handleCancelClick">
           <IconCancel />
           Cancel
         </BaseButton>
@@ -180,6 +188,11 @@ function blockEvent(event: Event) {
   border: none;
   padding: 16px;
   cursor: pointer;
+  transition: box-shadow 0.2s ease;
+}
+
+.card:hover:not(.card-disabled) {
+  box-shadow: var(--shadow-1);
 }
 
 .card.editing-mode {
@@ -213,6 +226,8 @@ function blockEvent(event: Event) {
 .editing-mode .title,
 .editing-mode .content {
   cursor: text;
+  border: 1px solid var(--color-border);
+  border-radius: 2px;
 }
 
 .drag-icon {
