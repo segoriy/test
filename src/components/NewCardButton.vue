@@ -11,6 +11,7 @@ import IconAdd from './icons/IconAdd.vue';
 <style scoped>
 button {
   width: 100%;
+  color: var(--color-text);
   background: var(--color-background-3);
   height: 32px;
   border-radius: 8px;

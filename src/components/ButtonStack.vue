@@ -9,6 +9,7 @@
 .stack {
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap;
   column-gap: var(--stack-gap);
 }
 </style>
