@@ -1,8 +1,8 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import { useKanBoardStore, type Card, type Column } from '@/stores/kanboard'
 import KanColumn from './KanColumn.vue'
 import BaseDialog from './BaseDialog.vue'
-import { ref } from 'vue'
 
 const kanBoard = useKanBoardStore()
 
@@ -60,7 +60,7 @@ function handleMoveCard({
 }
 
 function handleSortCards(columnId: Column['id']) {
-  kanBoard.sortCards(columnId);
+  kanBoard.sortCards(columnId)
 }
 </script>
 <template>
@@ -70,12 +70,12 @@ function handleSortCards(columnId: Column['id']) {
     content="Are you sure you want to perform this action?"
     @onApply="handleDialogApply"
   />
-  <TransitionGroup
-    name="column"
-    tag="div"
-    class="kanboard"
-  >
-    <div class="column-wrapper">
+  <div class="kanboard">
+    <TransitionGroup
+      name="column"
+      tag="div"
+      class="column-wrapper"
+    >
       <KanColumn
         v-for="column in kanBoard.columns"
         :key="column.id"
@@ -96,8 +96,8 @@ function handleSortCards(columnId: Column['id']) {
         class="column"
       >
       </KanColumn>
-    </div>
-  </TransitionGroup>
+    </TransitionGroup>
+  </div>
 </template>
 <style scoped>
 .kanboard {

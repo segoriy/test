@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { ref, nextTick, computed, watch } from 'vue'
+import { ref, nextTick, computed } from 'vue'
+import type { Card, Column, SortType } from '@/stores/kanboard'
+import { useContentEditable } from '@/composables/useContenteditable'
 import BaseButton from './BaseButton.vue'
 import ButtonStack from './ButtonStack.vue'
 import KanCard from './KanCard.vue'
 import NewCardButton from './NewCardButton.vue'
-import type { Card, Column, SortType } from '@/stores/kanboard'
-import { useContentEditable } from '@/composables/useContenteditable'
 import LastEdit from './LastEdit.vue'
 import IconDelete from './icons/IconDelete.vue'
 import IconPlay from './icons/IconPlay.vue'
@@ -13,6 +13,20 @@ import IconPause from './icons/IconPause.vue'
 import IconSort from './icons/IconSort.vue'
 
 const { focusEndOfElement } = useContentEditable()
+
+const {
+  cards,
+  id: columnId,
+  canEdit,
+  updated: lastEdited,
+  sortType = 'none',
+} = defineProps<{
+  cards: Card[]
+  id: Column['id']
+  canEdit: boolean
+  updated: number
+  sortType?: SortType
+}>()
 
 const emit = defineEmits<{
   (e: 'addNewCard', id: Column['id']): void
@@ -23,29 +37,19 @@ const emit = defineEmits<{
   (e: 'deleteColumn', id: Column['id']): void
   (e: 'cardUpdated', id: Column['id'], cardId: Card['id']): void
   (e: 'sortCards', id: Column['id']): void
-  (e: 'moveCard', payload: { 
-    fromColumnId: Column['id'], 
-    cardId: Card['id'], 
-    toColumnId: Column['id'], 
-    position: number 
-  }): void
-}>()
-
-const {
-  cards,
-  id: columnId,
-  canEdit,
-  updated: lastEdited,
-  sortType = 'none'
-} = defineProps<{
-  cards: Card[]
-  id: Column['id']
-  canEdit: boolean
-  updated: number,
-  sortType?: SortType,
+  (
+    e: 'moveCard',
+    payload: {
+      fromColumnId: Column['id']
+      cardId: Card['id']
+      toColumnId: Column['id']
+      position: number
+    },
+  ): void
 }>()
 
 const title = defineModel<string>('title')
+
 const isEditingTitle = ref(false)
 const titleElement = ref<HTMLElement>()
 const columnElement = ref<HTMLElement>()
@@ -65,6 +69,7 @@ function handleTitleDoubleClick() {
 
 function saveTitle() {
   if (!isEditingTitle.value || !titleElement.value) return
+
   const newTitle = titleElement.value.textContent?.trim() || ''
   title.value = newTitle
   isEditingTitle.value = false
@@ -72,6 +77,7 @@ function saveTitle() {
 
 function cancelEditTitle() {
   if (!titleElement.value) return
+
   titleElement.value.innerText = title.value || ''
   isEditingTitle.value = false
 }
@@ -111,7 +117,7 @@ function handleCardUpdated(id: Card['id']) {
 }
 
 function handleSortCardsClick() {
-  emit('sortCards', columnId);
+  emit('sortCards', columnId)
 }
 
 function handleDragOver(e: DragEvent) {
@@ -190,8 +196,8 @@ function handleDrop(e: DragEvent) {
           :disabled="!canEdit"
         >
           <IconDelete />
-          Delete Column</BaseButton
-        >
+          Delete Column
+        </BaseButton>
       </ButtonStack>
     </div>
     <TransitionGroup
@@ -240,9 +246,8 @@ function handleDrop(e: DragEvent) {
           @click="handleClearAllClick"
         >
           <IconDelete />
-
-          Clear All</BaseButton
-        >
+          Clear All
+        </BaseButton>
       </ButtonStack>
     </div>
   </div>

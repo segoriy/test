@@ -1,16 +1,13 @@
 <script setup lang="ts">
 import { ref, watch, nextTick, computed, onMounted } from 'vue'
+import { useContentEditable } from '@/composables/useContenteditable'
 import ButtonStack from './ButtonStack.vue'
 import BaseButton from './BaseButton.vue'
 import IconDrag from './icons/IconDrag.vue'
-import { useContentEditable } from '@/composables/useContenteditable'
 import IconCancel from './icons/IconCancel.vue'
 import IconApply from './icons/IconApply.vue'
 
 const { focusEndOfElement } = useContentEditable()
-
-const titleModel = defineModel<string>('title')
-const contentModel = defineModel<string>('content')
 
 const {
   canEdit = true,
@@ -29,22 +26,22 @@ const emit = defineEmits<{
   (e: 'updated'): void
 }>()
 
+const titleModel = defineModel<string>('title')
+const contentModel = defineModel<string>('content')
+
+
 const isButtonsVisible = ref(false)
 const isDraggable = ref(true)
 const isEditing = ref(false)
 const hasChanges = ref(false)
 const isDragging = ref(false)
-
 const clickOffset = ref({ x: 0, y: 0 });
-
 
 const titleElement = ref<HTMLElement>()
 const contentElement = ref<HTMLElement>()
 const lastClickTarget = ref<HTMLElement | null>(null)
-
 const cardElement = ref<HTMLElement>()
 const dragIconElement = ref<HTMLElement>()
-
 
 const originalTitle = computed(() => titleModel.value || '')
 const originalContent = computed(() => contentModel.value || '')
@@ -72,6 +69,7 @@ function handleDoubleClick(event: MouseEvent) {
 
 function startEditing() {
   if (!canEdit) return
+
   isEditing.value = true
   isButtonsVisible.value = true
 
@@ -149,6 +147,7 @@ function handleKeyDown(e: KeyboardEvent) {
 
 function handleContext(event: Event) {
   if (blockEvent(event)) return
+
   emit('updated')
   const force = isNew
   emit('delete-card', force)
@@ -156,6 +155,7 @@ function handleContext(event: Event) {
 
 function blockEvent(event: Event) {
   if (canEdit) return false
+
   event.preventDefault()
   event.stopPropagation()
   return true
@@ -303,10 +303,9 @@ function handleDragEnd() {
 
 .title-content {
   white-space: pre-wrap;
-}
-
-.title:not(.is-draggable) {
-  margin-right: 4px;
+  width: 100%;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
 .title-content[contenteditable='true']:focus,
@@ -330,8 +329,6 @@ function handleDragEnd() {
 .drag-icon:active {
  cursor: grabbing;
 }
-
-
 
 .content {
   margin: 8px 0;

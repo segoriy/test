@@ -99,9 +99,11 @@ export const useKanBoardStore = defineStore('kanBoard', () => {
 
     if (!column) return;
 
+    column.sortType = 'none';
+
     column.cards.push({
-      title: `test title ${genId()}`,
-      content: 'Add content...',
+      title: ``,
+      content: 'Add description...',
       canEdit: column.canEdit,
       id: genId(),
       isNew: true,
@@ -151,13 +153,18 @@ export const useKanBoardStore = defineStore('kanBoard', () => {
     const overall = Math.random() <= 0.1;
 
     if (overall) {
-      const newCards = shuffleOverall(columns.value.map((col) => col.cards));
+      const newCards = shuffleOverall(
+        columns.value.filter((col) => col.canEdit)
+          .map((col) => col.cards)
+      );
       columns.value.forEach((col, i) => {
+        if (!col.canEdit) return;
         col.cards = newCards[i];
         col.updated = Date.now();
       })
     } else {
       columns.value.forEach((col) => {
+        if (!col.canEdit) return;
         col.cards = shuffle(col.cards);
         col.updated = Date.now();
       })
