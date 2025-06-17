@@ -195,6 +195,32 @@ export const useKanBoardStore = defineStore('kanBoard', () => {
     }
   }
 
+  function moveCard({ fromColumnId, cardId, toColumnId, position }: {
+    fromColumnId: number,
+    cardId: number,
+    toColumnId: number,
+    position: number
+  }) {
+    const fromColumn = columns.value.find(c => c.id === fromColumnId);
+    if (!fromColumn) return;
+
+    const cardIndex = fromColumn.cards.findIndex(c => c.id === cardId);
+    if (cardIndex === -1) return;
+
+    const card = fromColumn.cards[cardIndex];
+
+    fromColumn.cards.splice(cardIndex, 1);
+
+    const toColumn = columns.value.find(c => c.id === toColumnId);
+    if (!toColumn) return;
+
+    if (position >= toColumn.cards.length) {
+      toColumn.cards.push(card);
+    } else {
+      toColumn.cards.splice(position, 0, card);
+    }
+  }
+
   return {
     columns,
     canEditAll,
@@ -210,6 +236,7 @@ export const useKanBoardStore = defineStore('kanBoard', () => {
     handleCardUpdated,
     getData,
     restoreData,
+    moveCard
   }
 });
 

@@ -22,6 +22,12 @@ const emit = defineEmits<{
   (e: 'disableEditing', id: Column['id']): void
   (e: 'deleteColumn', id: Column['id']): void
   (e: 'cardUpdated', id: Column['id'], cardId: Card['id']): void
+  (e: 'moveCard', payload: { 
+    fromColumnId: Column['id'], 
+    cardId: Card['id'], 
+    toColumnId: Column['id'], 
+    position: number 
+  }): void
 }>()
 
 const {
@@ -39,7 +45,7 @@ const {
 const title = defineModel<string>('title')
 const isEditingTitle = ref(false)
 const titleElement = ref<HTMLElement>()
-
+const columnElement = ref<HTMLElement>()
 
 const sortType = ref<'none' | 'asc' | 'desc'>('none')
 
@@ -111,7 +117,7 @@ function handleDeleteColumnClick() {
 }
 
 function handleClearAllClick() {
-  emit('clearAllCards', columnId);
+  emit('clearAllCards', columnId)
 }
 
 function handleCardUpdated(id: Card['id']) {
@@ -127,10 +133,57 @@ function handleSortCardsClick() {
   sortType.value = nextSort[sortType.value] as Partial<'none' | 'asc' | 'desc'>
 }
 
+function handleDragOver(e: DragEvent) {
+  if (!canEdit) return
+  e.preventDefault()
+  e.dataTransfer!.dropEffect = 'move'
+}
+
+function handleDrop(e: DragEvent) {
+  e.preventDefault()
+  if (!canEdit) return
+
+  const data = JSON.parse(e.dataTransfer?.getData('text/plain') || '{}')
+  if (!data.cardId || !data.columnId) return
+
+  const rect = columnElement.value?.getBoundingClientRect()
+  if (!rect) return
+
+  const mouseY = e.clientY - rect.top
+  const cards = Array.from(columnElement.value?.querySelectorAll('.card') || [])
+
+  let targetIndex = -1
+  for (let i = 0; i < cards.length; i++) {
+    const card = cards[i] as HTMLElement
+    const cardRect = card.getBoundingClientRect()
+    const cardMiddle = (cardRect.top + cardRect.bottom) / 2 - rect.top
+
+    if (mouseY < cardMiddle) {
+      targetIndex = i
+      break
+    }
+  }
+
+  if (targetIndex === -1) {
+    targetIndex = cards.length
+  }
+
+  emit('moveCard', {
+    fromColumnId: data.columnId,
+    cardId: data.cardId,
+    toColumnId: columnId,
+    position: targetIndex,
+  })
+}
 </script>
 
 <template>
-  <div class="column">
+  <div
+    ref="columnElement"
+    class="column"
+    @dragover="handleDragOver"
+    @drop="handleDrop"
+  >
     <div class="header">
       <div :class="{ title: true, disabled: !canEdit }">
         <div
@@ -172,6 +225,8 @@ function handleSortCardsClick() {
         v-model:content="card.content"
         :can-edit
         :is-new="card.isNew"
+        :card-id="card.id"
+        :column-id="columnId"
         @updated="handleCardUpdated(card.id)"
         @delete-card="(force) => handleDeleteExistingCard(card.id, force)"
       />
@@ -216,6 +271,7 @@ function handleSortCardsClick() {
 .column {
   display: flex;
   height: 100%;
+  min-height: 100px;
   flex: 0 0 auto;
   flex-direction: column;
   align-items: stretch;
@@ -275,6 +331,7 @@ function handleSortCardsClick() {
   align-items: stretch;
   justify-content: flex-start;
   row-gap: 8px;
+  margin-bottom: 4px;
 }
 
 .footer {

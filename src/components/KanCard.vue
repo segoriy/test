@@ -1,174 +1,266 @@
 <script setup lang="ts">
-import { ref, watch, nextTick, computed, onMounted } from 'vue';
-import ButtonStack from './ButtonStack.vue';
-import BaseButton from './BaseButton.vue';
-import IconDrag from './icons/IconDrag.vue';
-import { useContentEditable } from '@/composables/useContenteditable';
-import IconCancel from './icons/IconCancel.vue';
-import IconApply from './icons/IconApply.vue';
+import { ref, watch, nextTick, computed, onMounted } from 'vue'
+import ButtonStack from './ButtonStack.vue'
+import BaseButton from './BaseButton.vue'
+import IconDrag from './icons/IconDrag.vue'
+import { useContentEditable } from '@/composables/useContenteditable'
+import IconCancel from './icons/IconCancel.vue'
+import IconApply from './icons/IconApply.vue'
 
-const { focusEndOfElement } = useContentEditable();
+const { focusEndOfElement } = useContentEditable()
 
-const titleModel = defineModel<string>('title');
-const contentModel = defineModel<string>('content');
+const titleModel = defineModel<string>('title')
+const contentModel = defineModel<string>('content')
 
-const { canEdit = true, isNew = true } = defineProps<{
+const {
+  canEdit = true,
+  isNew = true,
+  cardId,
+  columnId,
+} = defineProps<{
   canEdit?: boolean
   isNew?: boolean
-}>();
-
-
-const emit = defineEmits<{
-  (e: 'delete-card', force: boolean): void,
-  (e: 'updated'): void,
+  cardId?: number
+  columnId?: number
 }>()
 
-const isButtonsVisible = ref(false);
-const isDraggable = ref(false);
-const isEditing = ref(false);
-const hasChanges = ref(false);
+const emit = defineEmits<{
+  (e: 'delete-card', force: boolean): void
+  (e: 'updated'): void
+}>()
 
-const titleElement = ref<HTMLElement>();
-const contentElement = ref<HTMLElement>();
-const lastClickTarget = ref<HTMLElement | null>(null);
+const isButtonsVisible = ref(false)
+const isDraggable = ref(true)
+const isEditing = ref(false)
+const hasChanges = ref(false)
+const isDragging = ref(false)
 
-const originalTitle = computed(() => titleModel.value || '');
-const originalContent = computed(() => contentModel.value || '');
+const clickOffset = ref({ x: 0, y: 0 });
 
-watch(() => canEdit, (newVal, old) => {
-  if (newVal === false) {
-    cancelEditing();
-  }
-});
+
+const titleElement = ref<HTMLElement>()
+const contentElement = ref<HTMLElement>()
+const lastClickTarget = ref<HTMLElement | null>(null)
+
+const cardElement = ref<HTMLElement>()
+const dragIconElement = ref<HTMLElement>()
+
+
+const originalTitle = computed(() => titleModel.value || '')
+const originalContent = computed(() => contentModel.value || '')
+
+watch(
+  () => canEdit,
+  (newVal, old) => {
+    if (newVal === false) {
+      cancelEditing()
+    }
+  },
+)
 
 onMounted(() => {
-  if (!isNew || !canEdit || isEditing.value) return;
-  startEditing();
-});
+  if (!isNew || !canEdit || isEditing.value) return
+  startEditing()
+})
 
 function handleDoubleClick(event: MouseEvent) {
-  if (!canEdit || isEditing.value) return;
+  if (!canEdit || isEditing.value) return
 
-  lastClickTarget.value = event.target as HTMLElement;
-  startEditing();
+  lastClickTarget.value = event.target as HTMLElement
+  startEditing()
 }
 
 function startEditing() {
-  if (!canEdit) return;
-  isEditing.value = true;
-  isButtonsVisible.value = true;
+  if (!canEdit) return
+  isEditing.value = true
+  isButtonsVisible.value = true
 
-  checkChanges();
+  checkChanges()
 
   nextTick(() => {
-    const target = lastClickTarget.value;
+    const target = lastClickTarget.value
     if (!target) {
-      contentElement.value?.focus();
-      return;
+      contentElement.value?.focus()
+      return
     }
 
-    const clickedTitle = target.closest('.title');
+    const clickedTitle = target.closest('.title')
 
     if (clickedTitle && titleElement.value) {
-      focusEndOfElement(titleElement);
+      focusEndOfElement(titleElement)
     } else if (contentElement.value) {
-      focusEndOfElement(contentElement);
+      focusEndOfElement(contentElement)
     }
-  });
+  })
 }
 
 function handleSaveClick() {
-  saveChanges();
+  saveChanges()
 }
 
 function saveChanges() {
-  if (!titleElement.value || !contentElement.value) return;
+  if (!titleElement.value || !contentElement.value) return
 
-  titleModel.value = titleElement.value.innerText || '';
-  contentModel.value = contentElement.value.innerText || '';
+  titleModel.value = titleElement.value.innerText || ''
+  contentModel.value = contentElement.value.innerText || ''
 
-  cancelEditing();
-  emit('updated');
+  cancelEditing()
+  emit('updated')
 }
 
 function handleCancelClick() {
   if (isNew) {
-      emit('delete-card', true);
-      return;
+    emit('delete-card', true)
+    return
   }
-  cancelEditing();
+  cancelEditing()
 }
 
 function cancelEditing() {
-  isEditing.value = false;
-  isButtonsVisible.value = false;
+  isEditing.value = false
+  isButtonsVisible.value = false
 
-  if (titleElement.value) titleElement.value.innerText = originalTitle.value || '';
-  if (contentElement.value) contentElement.value.innerText = originalContent.value || '';
+  if (titleElement.value) titleElement.value.innerText = originalTitle.value || ''
+  if (contentElement.value) contentElement.value.innerText = originalContent.value || ''
 }
 
 function checkChanges() {
-  if (!titleElement.value || !contentElement.value) return;
+  if (!titleElement.value || !contentElement.value) return
 
   hasChanges.value =
     titleElement.value.innerText !== originalTitle.value ||
-    contentElement.value.innerText !== originalContent.value;
+    contentElement.value.innerText !== originalContent.value
 }
 
 function handleKeyDown(e: KeyboardEvent) {
   if (e.key === 'Escape') {
     if (isNew) {
-      emit('delete-card', true);
-      return;
+      emit('delete-card', true)
+      return
     }
-    cancelEditing();
-    e.preventDefault();
-    e.stopPropagation();
+    cancelEditing()
+    e.preventDefault()
+    e.stopPropagation()
   } else if (e.key === 'Enter' && e.target === contentElement.value) {
-    saveChanges();
-    e.preventDefault();
+    saveChanges()
+    e.preventDefault()
   }
 }
 
 function handleContext(event: Event) {
-  if (blockEvent(event)) return;
-  emit('updated');
-  const force = isNew;
-  emit('delete-card', force);
+  if (blockEvent(event)) return
+  emit('updated')
+  const force = isNew
+  emit('delete-card', force)
 }
 
 function blockEvent(event: Event) {
-  if (canEdit) return false;
-  event.preventDefault();
-  event.stopPropagation();
-  return true;
+  if (canEdit) return false
+  event.preventDefault()
+  event.stopPropagation()
+  return true
+}
+
+function handleDragStart(e: DragEvent) {
+  if (!canEdit || !isDraggable.value || e.target !== dragIconElement.value) {
+    e.preventDefault()
+    return
+  }
+   const dragImage = cardElement.value?.cloneNode(true) as HTMLElement;
+  if (dragImage && cardElement.value && e.target) {
+    const cardRect = cardElement.value.getBoundingClientRect();
+    
+    clickOffset.value = {
+      x: e.clientX - cardRect.left,
+      y: e.clientY - cardRect.top
+    };
+
+    dragImage.style.position = 'fixed';
+    dragImage.style.top = '-9999px';
+    dragImage.style.width = `${cardRect.width}px`;
+    dragImage.style.opacity = '0.9';
+    dragImage.style.pointerEvents = 'none';
+    dragImage.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)';
+    dragImage.style.transform = 'rotate(2deg)';
+    dragImage.style.zIndex = '9999';
+    document.body.appendChild(dragImage);
+
+    e.dataTransfer?.setDragImage(dragImage, clickOffset.value.x, clickOffset.value.y);
+    
+    setTimeout(() => document.body.removeChild(dragImage), 0);
+  }
+
+  e.dataTransfer?.setData(
+    'text/plain',
+    JSON.stringify({
+      cardId,
+      columnId,
+    }),
+  )
+  e.dataTransfer!.effectAllowed = 'move'
+
+  setTimeout(() => {
+    isDragging.value = true
+  }, 0)
+}
+
+function handleDragEnd() {
+  isDragging.value = false
 }
 </script>
 
 <template>
-  <div :class="{
-    card: true,
-    'card-disabled': !canEdit,
-    'editing-mode': isEditing,
-  }" @contextmenu.prevent.stop="handleContext" @keydown="handleKeyDown" @dblclick="handleDoubleClick">
-    <div :class="{
-      title: true,
-      'is-draggable': !isDraggable,
-    }">
-      <div class="title-content" ref="titleElement" :contenteditable="isEditing" @input="checkChanges">
+  <div
+    ref="cardElement"
+    :class="{
+      card: true,
+      'card-disabled': !canEdit,
+      'editing-mode': isEditing,
+    }"
+    @contextmenu.prevent.stop="handleContext"
+    @keydown="handleKeyDown"
+    @dblclick="handleDoubleClick"
+  >
+    <div
+      :class="{
+        title: true,
+        'is-draggable': !isDraggable,
+      }"
+    >
+      <div
+        class="title-content"
+        ref="titleElement"
+        :contenteditable="isEditing"
+        @input="checkChanges"
+      >
         {{ titleModel }}
       </div>
+      <div
+        v-if="isDraggable && !isEditing && canEdit"
+        ref="dragIconElement"
+        class="drag-icon"
+        :draggable="canEdit && !isEditing"
+        @dragstart="handleDragStart"
+        @dragend="handleDragEnd"
+      >
+        <IconDrag />
+      </div>
     </div>
-    <div v-if="isDraggable" class="drag-icon">
-      <IconDrag />
-    </div>
-    <div class="content" ref="contentElement" :contenteditable="isEditing" @input="checkChanges">
+    <div
+      class="content"
+      ref="contentElement"
+      :contenteditable="isEditing"
+      @input="checkChanges"
+    >
       {{ contentModel }}
     </div>
 
     <template v-if="isButtonsVisible">
       <ButtonStack>
-        <BaseButton @click="handleSaveClick" :disabled="!hasChanges && !isNew">
+        <BaseButton
+          @click="handleSaveClick"
+          :disabled="!hasChanges && !isNew"
+        >
           <IconApply />
           Save
         </BaseButton>
@@ -218,8 +310,8 @@ function blockEvent(event: Event) {
   margin-right: 4px;
 }
 
-.title-content[contenteditable="true"]:focus,
-.content[contenteditable="true"]:focus {
+.title-content[contenteditable='true']:focus,
+.content[contenteditable='true']:focus {
   outline: none;
 }
 
@@ -232,12 +324,26 @@ function blockEvent(event: Event) {
 
 .drag-icon {
   margin-left: auto;
+  user-select: none;
+  cursor: grab;
 }
+
+.drag-icon:active {
+ cursor: grabbing;
+}
+
+
 
 .content {
   margin: 8px 0;
   color: var(--color-text-secondary);
   white-space: pre-wrap;
   outline: none;
+}
+
+.dragging {
+  opacity: 0.3;
+  transform: scale(0.98);
+  transition: opacity 0.15s ease-out, transform 0.15s ease-out;
 }
 </style>

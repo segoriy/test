@@ -45,6 +45,15 @@ function handleCardUpdated(id: Column['id'], cardId: Card['id']) {
 function handleDialogApply() {
   if (callback) callback();
 }
+
+function handleMoveCard({ fromColumnId, cardId, toColumnId, position }: { 
+  fromColumnId: number, 
+  cardId: number, 
+  toColumnId: number, 
+  position: number 
+}) {
+ kanBoard.moveCard({ fromColumnId, cardId, toColumnId, position });
+}
 </script>
 <template>
   <BaseDialog
@@ -72,6 +81,7 @@ function handleDialogApply() {
       @clear-all-cards="handleClearAllCards"
       @disable-editing="handleDisableEditingColumn"
       @card-updated="handleCardUpdated"
+      @move-card="handleMoveCard"
       class="column"
     >
     </KanColumn>
