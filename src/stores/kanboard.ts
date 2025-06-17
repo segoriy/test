@@ -126,13 +126,19 @@ export const useKanBoardStore = defineStore('kanBoard', () => {
     column.cards = [];
   }
 
-  function toggleEditing(id: Column['id']) {
+  function toggleEditing(id: Column['id'], value?: boolean) {
     const column = getColumnById.value(id);
 
     if (!column) return;
 
-    column.canEdit = !column.canEdit;
-    column.cards.forEach((card) => card.canEdit = column.canEdit);
+    column.canEdit = value ?? !column.canEdit;
+
+    const newCards = column.cards
+      .filter((card) => !card.isNew)
+
+    newCards.forEach((card) => card.canEdit = column.canEdit);
+
+    column.cards = newCards;
   }
 
   function toggleEditingAll() {
@@ -141,7 +147,7 @@ export const useKanBoardStore = defineStore('kanBoard', () => {
     } else {
       columns.value.forEach((el) => el.canEdit = !el.canEdit);
     }
-    columns.value.forEach((col) => col.cards.forEach((card) => card.canEdit = col.canEdit));
+    columns.value.forEach((col) => toggleEditing(col.id, col.canEdit));
 
   }
 
