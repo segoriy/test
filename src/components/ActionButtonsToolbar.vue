@@ -26,18 +26,25 @@ function handleShuffleCardsClick() {
 }
 </script>
 <template>
-  <ButtonStack>
-    <BaseButton @click="handleAddNewColumnClick"> <IconAdd /> New Column </BaseButton>
-    <BaseButton
-      :disabled="!kanBoard.columns.length"
-      @click="handleToggleEditingClick"
-    >
-      <IconPause v-if="kanBoard.canEditAll" />
-      <IconPlay v-else />
-      {{ kanBoard.canEditAll ? 'Disable' : 'Enable' }} Editing
-    </BaseButton>
-    <BaseButton @click="handleShuffleColumnsClick"> <IconShuffle /> Shuffle Columns</BaseButton>
-    <BaseButton @click="handleShuffleCardsClick"> <IconShuffle /> Shuffle Cards</BaseButton>
-  </ButtonStack>
+  <div class="actions">
+    <ButtonStack>
+      <BaseButton @click="handleShuffleColumnsClick">
+        <IconShuffle /> Shuffle Columns</BaseButton>
+      <BaseButton @click="handleAddNewColumnClick"> <IconAdd /> New Column </BaseButton>
+      <BaseButton @click="handleShuffleCardsClick"> <IconShuffle /> Shuffle Cards</BaseButton>
+      <BaseButton :disabled="!kanBoard.columns.length" @click="handleToggleEditingClick">
+        <IconPause />
+        Disable Editing
+      </BaseButton>
+    </ButtonStack>
+    <span class="text-secondary">Board Actions</span>
+  </div>
 </template>
-<style scoped></style>
+<style scoped>
+.actions {
+  display: flex;
+  flex-direction: column;
+  row-gap: 12px;
+  align-items: center;
+}
+</style>

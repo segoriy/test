@@ -311,18 +311,27 @@ function handleDragEnd() {
   width: 100%;
   text-overflow: ellipsis;
   overflow: hidden;
+  word-break: break-all;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
 }
+
 
 .title-content[contenteditable='true']:focus,
 .content[contenteditable='true']:focus {
   outline: none;
 }
 
-.editing-mode .title,
+.editing-mode .title-content,
 .editing-mode .content {
   cursor: text;
   border: 1px solid var(--color-border);
   border-radius: 2px;
+  line-clamp: unset;
+  -webkit-line-clamp: unset;
 }
 
 .drag-icon {
@@ -340,8 +349,13 @@ function handleDragEnd() {
   color: var(--color-text-secondary);
   white-space: pre-wrap;
   outline: none;
+  word-break: break-all;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
 }
-
 .dragging {
   opacity: 0.3;
   transform: scale(0.98);

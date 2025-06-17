@@ -142,12 +142,7 @@ export const useKanBoardStore = defineStore('kanBoard', () => {
   }
 
   function toggleEditingAll() {
-    if (columns.value.find((el) => el.canEdit)) {
-      columns.value.forEach((el) => el.canEdit = false);
-    } else {
-      columns.value.forEach((el) => el.canEdit = !el.canEdit);
-    }
-    columns.value.forEach((col) => toggleEditing(col.id, col.canEdit));
+    columns.value.forEach((col) => toggleEditing(col.id, false));
 
   }
 

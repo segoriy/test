@@ -189,7 +189,7 @@ function handleDrop(e: DragEvent) {
         <BaseButton @click="handleDisableEditingClick">
           <IconPause v-if="canEdit" />
           <IconPlay v-else />
-          {{ canEdit ? 'Disable' : 'Enable' }} Editing</BaseButton
+          {{ canEdit ? 'Disable Editing' : 'Unlock Column' }} </BaseButton
         >
         <BaseButton
           @click="handleDeleteColumnClick"
@@ -218,10 +218,12 @@ function handleDrop(e: DragEvent) {
         @delete-card="(force) => handleDeleteExistingCard(card.id, force)"
       />
       <div
-        v-if="canEdit"
         class="new-card-button"
       >
-        <NewCardButton @new-click="handleNewCardClick" />
+        <NewCardButton  
+          :disabled="!canEdit"
+          @new-click="handleNewCardClick" 
+        />
       </div>
       <LastEdit
         v-if="cardsCounter"
@@ -293,6 +295,12 @@ function handleDrop(e: DragEvent) {
   min-height: 1em;
   color: var(--color-text-secondary);
   text-transform: uppercase;
+  word-break: break-all;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
 }
 .title:not(.disabled) .title-content:hover {
   color: var(--color-text);

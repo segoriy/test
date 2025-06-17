@@ -33,4 +33,10 @@ button:active {
   border-color: var(--color-border-active);
   box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.1);
 }
+
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
 </style>
