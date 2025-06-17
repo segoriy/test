@@ -168,14 +168,14 @@ export const useKanBoardStore = defineStore('kanBoard', () => {
         if (!col.canEdit) continue;
         col.cards = newCards[j++];
         col.updated = Date.now();
+        col.sortType = 'none';
       }
-      columns.value.forEach((col) => {
-      })
     } else {
       columns.value.forEach((col) => {
         if (!col.canEdit) return;
         col.cards = shuffle(col.cards);
         col.updated = Date.now();
+        col.sortType = 'none';
       })
     }
   }
