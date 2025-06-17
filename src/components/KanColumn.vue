@@ -270,7 +270,6 @@ function handleDrop(e: DragEvent) {
 <style scoped>
 .column {
   display: flex;
-  height: 100%;
   min-height: 100px;
   flex: 0 0 auto;
   flex-direction: column;

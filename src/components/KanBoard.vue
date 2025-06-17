@@ -4,12 +4,11 @@ import KanColumn from './KanColumn.vue'
 import BaseDialog from './BaseDialog.vue'
 import { ref } from 'vue'
 
-
 const kanBoard = useKanBoardStore()
 
 const isDialogVisible = ref(false)
 
-let callback: Function = () => {};
+let callback: Function = () => {}
 
 function handleAddNewCard(id: Column['id']) {
   kanBoard.addNewCard(id)
@@ -18,20 +17,20 @@ function handleAddNewCard(id: Column['id']) {
 function handleDeleteCard(id: Column['id'], cardId: Card['id'], force: boolean) {
   callback = () => kanBoard.deleteCard(id, cardId)
   if (force) {
-    callback();
+    callback()
   } else {
-    isDialogVisible.value = true;
+    isDialogVisible.value = true
   }
 }
 
 function handleDeleteColumn(id: Column['id']) {
-  isDialogVisible.value = true;
-  callback = () => kanBoard.deleteColumn(id);
+  isDialogVisible.value = true
+  callback = () => kanBoard.deleteColumn(id)
 }
 
 function handleClearAllCards(id: Column['id']) {
-  isDialogVisible.value = true;
-  callback = () => kanBoard.clearAllCards(id);
+  isDialogVisible.value = true
+  callback = () => kanBoard.clearAllCards(id)
 }
 
 function handleDisableEditingColumn(id: Column['id']) {
@@ -43,62 +42,72 @@ function handleCardUpdated(id: Column['id'], cardId: Card['id']) {
 }
 
 function handleDialogApply() {
-  if (callback) callback();
+  if (callback) callback()
 }
 
-function handleMoveCard({ fromColumnId, cardId, toColumnId, position }: { 
-  fromColumnId: number, 
-  cardId: number, 
-  toColumnId: number, 
-  position: number 
+function handleMoveCard({
+  fromColumnId,
+  cardId,
+  toColumnId,
+  position,
+}: {
+  fromColumnId: number
+  cardId: number
+  toColumnId: number
+  position: number
 }) {
- kanBoard.moveCard({ fromColumnId, cardId, toColumnId, position });
+  kanBoard.moveCard({ fromColumnId, cardId, toColumnId, position })
 }
 </script>
 <template>
   <BaseDialog
-      v-model="isDialogVisible"
-      title="Warning"
-      content="Are you sure you want to perform this action?"
-      @onApply="handleDialogApply"
-    />
+    v-model="isDialogVisible"
+    title="Warning"
+    content="Are you sure you want to perform this action?"
+    @onApply="handleDialogApply"
+  />
   <TransitionGroup
     name="column"
     tag="div"
     class="kanboard"
   >
-    <KanColumn
-      v-for="column in kanBoard.columns"
-      :key="column.id"
-      :id="column.id"
-      :cards="column.cards"
-      :updated="column.updated"
-      :can-edit="column.canEdit"
-      v-model:title="column.title"
-      @add-new-card="handleAddNewCard"
-      @delete-card="handleDeleteCard"
-      @delete-column="handleDeleteColumn"
-      @clear-all-cards="handleClearAllCards"
-      @disable-editing="handleDisableEditingColumn"
-      @card-updated="handleCardUpdated"
-      @move-card="handleMoveCard"
-      class="column"
-    >
-    </KanColumn>
+    <div class="column-wrapper">
+      <KanColumn
+        v-for="column in kanBoard.columns"
+        :key="column.id"
+        :id="column.id"
+        :cards="column.cards"
+        :updated="column.updated"
+        :can-edit="column.canEdit"
+        v-model:title="column.title"
+        @add-new-card="handleAddNewCard"
+        @delete-card="handleDeleteCard"
+        @delete-column="handleDeleteColumn"
+        @clear-all-cards="handleClearAllCards"
+        @disable-editing="handleDisableEditingColumn"
+        @card-updated="handleCardUpdated"
+        @move-card="handleMoveCard"
+        class="column"
+      >
+      </KanColumn>
+    </div>
   </TransitionGroup>
 </template>
 <style scoped>
 .kanboard {
   width: 100%;
-  overflow-x: auto;
-  flex-grow: 1;
+  height: 100%;
+  overflow: auto;
   scroll-snap-type: x proximity;
-  box-sizing: border-box;
+}
+
+.column-wrapper {
   display: flex;
   flex-direction: row;
   gap: var(--kanboard-column-gap);
-  align-items: flex-start;
+  align-items: stretch;
   justify-content: flex-start;
+  min-height: 100%;
 }
 
 .column-move {
