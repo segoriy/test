@@ -139,9 +139,14 @@ function handleKeyDown(e: KeyboardEvent) {
     cancelEditing()
     e.preventDefault()
     e.stopPropagation()
-  } else if (e.key === 'Enter' && e.target === contentElement.value) {
-    saveChanges()
-    e.preventDefault()
+  } else if (e.key === 'Enter') {
+     if (e.shiftKey) {
+      document.execCommand('insertLineBreak')
+      e.preventDefault()
+    } else {
+      saveChanges()
+      e.preventDefault()
+    }
   }
 }
 
