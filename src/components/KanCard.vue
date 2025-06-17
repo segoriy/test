@@ -174,7 +174,6 @@ function handleDragStart(e: DragEvent) {
       x: e.clientX - cardRect.left,
       y: e.clientY - cardRect.top
     };
-
     dragImage.style.position = 'fixed';
     dragImage.style.top = '-9999px';
     dragImage.style.width = `${cardRect.width}px`;

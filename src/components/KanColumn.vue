@@ -4,7 +4,7 @@ import BaseButton from './BaseButton.vue'
 import ButtonStack from './ButtonStack.vue'
 import KanCard from './KanCard.vue'
 import NewCardButton from './NewCardButton.vue'
-import type { Card, Column } from '@/stores/kanboard'
+import type { Card, Column, SortType } from '@/stores/kanboard'
 import { useContentEditable } from '@/composables/useContenteditable'
 import LastEdit from './LastEdit.vue'
 import IconDelete from './icons/IconDelete.vue'
@@ -22,6 +22,7 @@ const emit = defineEmits<{
   (e: 'disableEditing', id: Column['id']): void
   (e: 'deleteColumn', id: Column['id']): void
   (e: 'cardUpdated', id: Column['id'], cardId: Card['id']): void
+  (e: 'sortCards', id: Column['id']): void
   (e: 'moveCard', payload: { 
     fromColumnId: Column['id'], 
     cardId: Card['id'], 
@@ -35,34 +36,19 @@ const {
   id: columnId,
   canEdit,
   updated: lastEdited,
+  sortType = 'none'
 } = defineProps<{
   cards: Card[]
   id: Column['id']
   canEdit: boolean
-  updated: number
+  updated: number,
+  sortType?: SortType,
 }>()
 
 const title = defineModel<string>('title')
 const isEditingTitle = ref(false)
 const titleElement = ref<HTMLElement>()
 const columnElement = ref<HTMLElement>()
-
-const sortType = ref<'none' | 'asc' | 'desc'>('none')
-
-watch(
-  () => cards,
-  (newVal, oldVal) => {
-    sortType.value = 'none'
-  },
-)
-
-const sortedCards = computed(() => {
-  if (sortType.value == 'none') return [...cards]
-
-  return [...cards].sort((a, b) => {
-    return sortType.value === 'asc' ? a.updated - b.updated : b.updated - a.updated
-  })
-})
 
 const cardsCounter = computed(() => cards.filter((card) => !card.isNew).length || '')
 
@@ -125,12 +111,7 @@ function handleCardUpdated(id: Card['id']) {
 }
 
 function handleSortCardsClick() {
-  const nextSort = {
-    asc: 'desc',
-    desc: 'none',
-    none: 'asc',
-  }
-  sortType.value = nextSort[sortType.value] as Partial<'none' | 'asc' | 'desc'>
+  emit('sortCards', columnId);
 }
 
 function handleDragOver(e: DragEvent) {
@@ -219,7 +200,7 @@ function handleDrop(e: DragEvent) {
       class="body"
     >
       <KanCard
-        v-for="card in sortedCards"
+        v-for="card in cards"
         :key="card.id"
         v-model:title="card.title"
         v-model:content="card.content"
@@ -245,7 +226,7 @@ function handleDrop(e: DragEvent) {
     <div class="footer">
       <ButtonStack>
         <BaseButton
-          :disabled="!canEdit || !sortedCards.length"
+          :disabled="!canEdit || !cards.length"
           @click="handleSortCardsClick"
         >
           <IconSort :sort-type />
@@ -255,7 +236,7 @@ function handleDrop(e: DragEvent) {
           </span>
         </BaseButton>
         <BaseButton
-          :disabled="!canEdit || !sortedCards.length"
+          :disabled="!canEdit || !cards.length"
           @click="handleClearAllClick"
         >
           <IconDelete />

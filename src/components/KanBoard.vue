@@ -58,6 +58,10 @@ function handleMoveCard({
 }) {
   kanBoard.moveCard({ fromColumnId, cardId, toColumnId, position })
 }
+
+function handleSortCards(columnId: Column['id']) {
+  kanBoard.sortCards(columnId);
+}
 </script>
 <template>
   <BaseDialog
@@ -79,6 +83,7 @@ function handleMoveCard({
         :cards="column.cards"
         :updated="column.updated"
         :can-edit="column.canEdit"
+        :sort-type="column.sortType"
         v-model:title="column.title"
         @add-new-card="handleAddNewCard"
         @delete-card="handleDeleteCard"
@@ -87,6 +92,7 @@ function handleMoveCard({
         @disable-editing="handleDisableEditingColumn"
         @card-updated="handleCardUpdated"
         @move-card="handleMoveCard"
+        @sort-cards="handleSortCards"
         class="column"
       >
       </KanColumn>

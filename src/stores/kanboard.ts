@@ -8,6 +8,7 @@ type Column = {
   cards: Card[];
   updated: number;
   canEdit: boolean;
+  sortType: SortType;
 }
 
 type Card = {
@@ -18,6 +19,8 @@ type Card = {
   isNew: boolean;
   updated: number;
 }
+
+type SortType = 'none' | 'asc' | 'desc';
 
 const genId = () => Date.now() + Math.random();
 
@@ -39,6 +42,16 @@ function shuffleOverall(arrays: any[]) {
   });
 
   return result;
+}
+
+const nextSort = {
+  asc: 'desc',
+  desc: 'none',
+  none: 'asc',
+}
+
+const getNextSort = (currentSort: SortType): SortType => {
+  return nextSort[currentSort] as SortType;
 }
 
 export const useKanBoardStore = defineStore('kanBoard', () => {
@@ -72,6 +85,7 @@ export const useKanBoardStore = defineStore('kanBoard', () => {
       cards: [],
       updated: 0,
       canEdit: true,
+      sortType: 'none',
     })
   }
 
@@ -177,6 +191,7 @@ export const useKanBoardStore = defineStore('kanBoard', () => {
         cards: [],
         updated: 0,
         canEdit: true,
+        sortType: 'none',
       },
       {
         title: 'in progress',
@@ -184,6 +199,7 @@ export const useKanBoardStore = defineStore('kanBoard', () => {
         cards: [],
         updated: 0,
         canEdit: true,
+        sortType: 'none',
       },
       {
         title: 'done',
@@ -191,6 +207,7 @@ export const useKanBoardStore = defineStore('kanBoard', () => {
         cards: [],
         updated: 0,
         canEdit: true,
+        sortType: 'none',
       },]
     }
   }
@@ -214,11 +231,31 @@ export const useKanBoardStore = defineStore('kanBoard', () => {
     const toColumn = columns.value.find(c => c.id === toColumnId);
     if (!toColumn) return;
 
+    toColumn.sortType = 'none';
+
     if (position >= toColumn.cards.length) {
       toColumn.cards.push(card);
     } else {
       toColumn.cards.splice(position, 0, card);
     }
+
+  }
+
+  function sortCards(columnId: Column['id']) {
+    const column = getColumnById.value(columnId);
+    if (!column) return;
+
+    const { sortType } = column;
+
+    column.sortType = getNextSort(sortType);
+
+    if (column.sortType == 'none') return;
+
+    column.cards = [...column.cards].sort((a, b) => {
+      return sortType === 'asc' ? a.updated - b.updated : b.updated - a.updated
+    })
+
+
   }
 
   return {
@@ -236,8 +273,9 @@ export const useKanBoardStore = defineStore('kanBoard', () => {
     handleCardUpdated,
     getData,
     restoreData,
-    moveCard
+    moveCard,
+    sortCards,
   }
 });
 
-export type { Column, Card };
+export type { Column, Card, SortType };
