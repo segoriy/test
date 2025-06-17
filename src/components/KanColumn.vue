@@ -289,6 +289,8 @@ function handleDrop(e: DragEvent) {
 }
 
 .title-content {
+  min-width: 1em;
+  min-height: 1em;
   color: var(--color-text-secondary);
   text-transform: uppercase;
 }
