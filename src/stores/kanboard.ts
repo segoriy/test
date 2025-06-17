@@ -163,10 +163,13 @@ export const useKanBoardStore = defineStore('kanBoard', () => {
         columns.value.filter((col) => col.canEdit)
           .map((col) => col.cards)
       );
-      columns.value.forEach((col, i) => {
-        if (!col.canEdit) return;
-        col.cards = newCards[i];
+      for (let i = 0, j = 0; i < columns.value.length; i++) {
+        const col = columns.value[i];
+        if (!col.canEdit) continue;
+        col.cards = newCards[j++];
         col.updated = Date.now();
+      }
+      columns.value.forEach((col) => {
       })
     } else {
       columns.value.forEach((col) => {
